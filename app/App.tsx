@@ -1,217 +1,210 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { View, Animated, StyleSheet } from 'react-native';
+import { Provider } from 'react-redux';
 import { COLORS } from './src/constants/theme';
-import { Home, Activity, Search, Settings, FileWarning } from 'lucide-react-native';
+import { Home, Users, FileText, Settings } from 'lucide-react-native';
+import { store } from './src/store';
+import { useAppSelector, useAppDispatch } from './src/store/hooks';
+import { loginSuccess } from './src/store/slices/authSlice';
+import mockData from './src/data/mockData.json';
 
-// Screens
-import HomeScreen from './src/screens/HomeScreen';
-import MonitoringScreen from './src/screens/MonitoringScreen';
-import AnalyzeScreen from './src/screens/AnalyzeScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
-import ReportScreen from './src/screens/ReportScreen';
-import ResourcesScreen from './src/screens/ResourcesScreen';
+// Auth Screens
+import LoginScreen from './src/screens/LoginScreen';
+import SignupScreen from './src/screens/SignupScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 
-import { LucideIcon } from 'lucide-react-native';
+// Main App Screens
+import DashboardScreen from './src/screens/DashboardScreen';
+import FeedScreen from './src/screens/FeedScreen';
+import ChatBotScreen from './src/screens/ChatBotScreen';
+import ComplaintUploadScreen from './src/screens/ComplaintUploadScreen';
+import ReportsLogScreen from './src/screens/ReportsLogScreen';
+import SettingsScreen from './src/screens/SettingsScreenNew';
+import CreatePostScreen from './src/screens/CreatePostScreen';
+import ReportDetailScreen from './src/screens/ReportDetailScreen';
 
-// ... imports
-
-export type RootStackParamList = {
-  Main: undefined;
-  Resources: undefined;
+export type AuthStackParamList = {
+  Login: undefined;
+  Signup: undefined;
+  ForgotPassword: undefined;
 };
 
-export type TabParamList = {
+export type RootStackParamList = {
+  Auth: undefined;
+  MainApp: undefined;
+  ComplaintUpload: undefined;
+  ChatBot: undefined;
+  CreatePost: undefined;
+  ReportDetail: { reportId: string };
+};
+
+export type MainTabParamList = {
   Dashboard: undefined;
-  Monitor: undefined;
-  Report: undefined;
-  Analyze: undefined;
+  Feed: undefined;
+  Reports: undefined;
   Settings: undefined;
 };
 
-const Tab = createBottomTabNavigator<TabParamList>();
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
-interface AnimatedTabIconProps {
-  focused: boolean;
-  icon: any;
-}
+// BACKEND TODO: Implement authentication state management
+// Use Context API or Redux to manage user authentication state
+// Store auth token in secure storage using expo-secure-store
+// Check authentication status on app launch
+// Automatically navigate to MainApp if user is authenticated
 
-const AnimatedTabIcon = ({ focused, icon: Icon }: AnimatedTabIconProps) => {
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const translateYAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (focused) {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1.15,
-          useNativeDriver: true,
-          friction: 4,
-          tension: 100,
-        }),
-        Animated.spring(translateYAnim, {
-          toValue: -8,
-          useNativeDriver: true,
-          friction: 4,
-          tension: 100,
-        }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          useNativeDriver: true,
-          friction: 4,
-        }),
-        Animated.spring(translateYAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-          friction: 4,
-        }),
-      ]).start();
-    }
-  }, [focused]);
-
+function AuthNavigator() {
   return (
-    <Animated.View
-      style={[
-        styles.iconWrapper,
-        {
-          transform: [{ scale: scaleAnim }, { translateY: translateYAnim }],
-        },
-      ]}
-    >
-      <View style={[styles.iconContainer, focused && styles.iconContainerFocused]}>
-        <Icon
-          color={focused ? COLORS.background : COLORS.textSecondary}
-          size={22}
-          strokeWidth={focused ? 2.5 : 2}
-        />
-      </View>
-    </Animated.View>
-  );
-};
-
-function TabNavigator() {
-  return (
-    <Tab.Navigator
-      id={undefined}
+    <AuthStack.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarShowLabel: false,
-        tabBarHideOnKeyboard: true,
-        tabBarItemStyle: styles.tabBarItem,
+        contentStyle: { backgroundColor: COLORS.background },
       }}
+    >
+      <AuthStack.Screen name="Login" component={LoginScreen} />
+      <AuthStack.Screen name="Signup" component={SignupScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
+function MainTabNavigator() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: COLORS.yellow,
+        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarStyle: {
+          backgroundColor: COLORS.white,
+          borderTopWidth: 1,
+          borderTopColor: COLORS.border,
+          height: 70,
+          paddingBottom: 10,
+          paddingTop: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+        tabBarIcon: ({ focused, color, size }) => {
+          let IconComponent;
+
+          switch (route.name) {
+            case 'Dashboard':
+              IconComponent = Home;
+              break;
+            case 'Feed':
+              IconComponent = Users;
+              break;
+            case 'Reports':
+              IconComponent = FileText;
+              break;
+            case 'Settings':
+              IconComponent = Settings;
+              break;
+            default:
+              IconComponent = Home;
+          }
+
+          return <IconComponent size={size} color={color} />;
+        },
+      })}
     >
       <Tab.Screen
         name="Dashboard"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <AnimatedTabIcon icon={Home} focused={focused} />
-          ),
-        }}
+        component={DashboardScreen}
+        options={{ tabBarLabel: 'Home' }}
       />
       <Tab.Screen
-        name="Monitor"
-        component={MonitoringScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <AnimatedTabIcon icon={Activity} focused={focused} />
-          ),
-        }}
+        name="Feed"
+        component={FeedScreen}
+        options={{ tabBarLabel: 'Community' }}
       />
       <Tab.Screen
-        name="Report"
-        component={ReportScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <AnimatedTabIcon icon={FileWarning} focused={focused} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Analyze"
-        component={AnalyzeScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <AnimatedTabIcon icon={Search} focused={focused} />
-          ),
-        }}
+        name="Reports"
+        component={ReportsLogScreen}
+        options={{ tabBarLabel: 'Reports' }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <AnimatedTabIcon icon={Settings} focused={focused} />
-          ),
-        }}
+        options={{ tabBarLabel: 'Settings' }}
       />
     </Tab.Navigator>
   );
 }
 
-export default function App() {
+function RootNavigator() {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+
+  // Load mock data on app start
+  useEffect(() => {
+    // BACKEND TODO: Remove this mock data initialization
+    // Replace with actual API calls to fetch user data
+  }, []);
+
   return (
-    <NavigationContainer>
-      <StatusBar style="light" />
-      <Stack.Navigator id={undefined} screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Main" component={TabNavigator} />
-        <Stack.Screen name="Resources" component={ResourcesScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <RootStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: COLORS.background },
+      }}
+    >
+      {!isAuthenticated ? (
+        <RootStack.Screen name="Auth" component={AuthNavigator} />
+      ) : (
+        <>
+          <RootStack.Screen name="MainApp" component={MainTabNavigator} />
+          <RootStack.Screen
+            name="ComplaintUpload"
+            component={ComplaintUploadScreen}
+            options={{
+              presentation: 'modal',
+            }}
+          />
+          <RootStack.Screen
+            name="ChatBot"
+            component={ChatBotScreen}
+          />
+          <RootStack.Screen
+            name="CreatePost"
+            component={CreatePostScreen}
+            options={{
+              presentation: 'modal',
+            }}
+          />
+          <RootStack.Screen
+            name="ReportDetail"
+            component={ReportDetailScreen}
+          />
+        </>
+      )}
+    </RootStack.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: COLORS.surface,
-    borderTopWidth: 0,
-    height: 70,
-    position: 'absolute',
-    bottom: 25,
-    left: 20,
-    right: 20,
-    borderRadius: 35,
-    elevation: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    paddingHorizontal: 10,
-  },
-  tabBarItem: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 46,
-    height: 46,
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
-  },
-  iconContainerFocused: {
-    backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-});
+function AppContent() {
+  return (
+    <>
+      <StatusBar style="dark" />
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <Provider store={store}>
+      <AppContent />
+    </Provider>
+  );
+}
