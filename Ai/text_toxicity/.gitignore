@@ -34,5 +34,5 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Hugging Face cache
-.cache/
+# Hugging Face cache (tracking cache files)
+# .cache/
