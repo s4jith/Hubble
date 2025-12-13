@@ -45,30 +45,30 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
       <div className="w-full max-w-md">
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6 sm:mb-8">
           <div className="flex items-center gap-2">
-            <Shield className="w-10 h-10" />
-            <span className="text-3xl font-bold">Hubble</span>
+            <Shield className="w-8 h-8 sm:w-10 sm:h-10" />
+            <span className="text-2xl sm:text-3xl font-bold">Hubble</span>
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Login to your account to continue</CardDescription>
+        <Card className="transition-all duration-150">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl">Welcome Back</CardTitle>
+            <CardDescription className="text-sm">Login to your account to continue</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 sm:p-6 pt-0">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                <div className="p-3 text-xs sm:text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
                   {error}
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email or Username</Label>
+                <Label htmlFor="email" className="text-sm">Email or Username</Label>
                 <Input
                   id="email"
                   type="text"
@@ -76,11 +76,12 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
+                  className="text-base sm:text-sm transition-all duration-150 focus:scale-[1.01]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -88,17 +89,22 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
+                  className="text-base sm:text-sm transition-all duration-150 focus:scale-[1.01]"
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full transition-all duration-150 active:scale-95" 
+                disabled={loading}
+              >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {loading ? 'Logging in...' : 'Login'}
               </Button>
 
-              <div className="text-center text-sm text-neutral-600">
+              <div className="text-center text-xs sm:text-sm text-neutral-600">
                 Don&apos;t have an account?{' '}
-                <Link href="/register" className="font-medium underline">
+                <Link href="/register" className="font-medium underline hover:text-neutral-900 transition-colors">
                   Register
                 </Link>
               </div>

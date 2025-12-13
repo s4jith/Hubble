@@ -28,7 +28,7 @@ export default function ActivityFeedPage() {
   const loadActivities = async () => {
     try {
       const response = await apiClient.getActivityFeed({ limit: 50 });
-      setActivities(response.data.activities || []);
+      setActivities(response.data.incidents || []);
     } catch (error) {
       console.error('Failed to load activities', error);
     } finally {
@@ -36,17 +36,22 @@ export default function ActivityFeedPage() {
     }
   };
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'scan':
-        return '🔍';
-      case 'alert':
-        return '⚠️';
-      case 'login':
-        return '🔐';
+  const getActivityIcon = (scanType: string) => {
+    switch (scanType) {
+      case 'text':
+        return '💬';
+      case 'image':
+        return '🖼️';
       default:
-        return '📝';
+        return '🔍';
     }
+  };
+
+  const getSeverityVariant = (severity: string) => {
+    if (severity === 'high' || severity === 'critical') {
+      return 'destructive';
+    }
+    return 'secondary';
   };
 
   if (loading) {
@@ -80,34 +85,42 @@ export default function ActivityFeedPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {activities.map((activity, idx) => (
+                {activities.map((activity) => (
                   <div
-                    key={idx}
-                    className="flex items-start gap-4 p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50"
+                    key={activity._id}
+                    className="flex items-start gap-4 p-4 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
                   >
-                    <div className="text-2xl">{getActivityIcon(activity.type)}</div>
+                    <div className="text-2xl">{getActivityIcon(activity.scanType)}</div>
                     <div className="flex-1">
-                      <div className="font-medium mb-1">{activity.title || activity.description}</div>
-                      {activity.childName && (
+                      <div className="font-medium mb-1">
+                        {activity.scanType === 'text' ? 'Text Scan' : 'Image Scan'}
+                        {activity.analysis?.isAbusive && ' - Flagged Content'}
+                      </div>
+                      {activity.source && (
                         <div className="text-sm text-neutral-600 mb-1">
-                          Child: {activity.childName}
+                          Source: {activity.source}
+                          {activity.platform && ` (${activity.platform})`}
                         </div>
                       )}
+                      <div className="text-sm text-neutral-700 mb-2 line-clamp-2">
+                        {activity.content || 'No content preview'}
+                      </div>
                       <div className="text-xs text-neutral-500">
                         {formatDate(activity.createdAt)} at {formatTime(activity.createdAt)}
                       </div>
                     </div>
-                    {activity.severity && (
-                      <Badge
-                        variant={
-                          activity.severity === 'high' || activity.severity === 'critical'
-                            ? 'destructive'
-                            : 'secondary'
-                        }
-                      >
-                        {activity.severity}
-                      </Badge>
-                    )}
+                    <div className="flex flex-col gap-2 items-end">
+                      {activity.severity && (
+                        <Badge variant={getSeverityVariant(activity.severity)}>
+                          {activity.severity}
+                        </Badge>
+                      )}
+                      {activity.analysis?.isAbusive && (
+                        <Badge variant="destructive">
+                          Abusive
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

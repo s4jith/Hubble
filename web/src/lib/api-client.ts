@@ -98,6 +98,11 @@ class ApiClient {
     return response.data;
   }
 
+  async getMe() {
+    const response = await this.client.get('/auth/me');
+    return response.data;
+  }
+
   async createChild(data: {
     username: string;
     password: string;
@@ -202,7 +207,8 @@ class ApiClient {
   }
 
   async getActivityFeed(params?: { page?: number; limit?: number }) {
-    const response = await this.client.get('/parent/activity-feed', { params });
+    // Activity feed uses the incidents endpoint
+    const response = await this.client.get('/parent/incidents', { params });
     return response.data;
   }
 

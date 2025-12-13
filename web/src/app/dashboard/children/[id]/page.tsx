@@ -77,85 +77,89 @@ export default function ChildDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" className="mb-6" onClick={() => router.push('/dashboard')}>
+    <div className="min-h-screen bg-neutral-50 animate-fade-in">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <Button 
+          variant="ghost" 
+          className="mb-4 sm:mb-6 transition-all duration-150 active:scale-95" 
+          onClick={() => router.push('/dashboard')}
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
         </Button>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+          <Card className="transition-all duration-150 hover:shadow-md">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <User className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                 Profile
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
               <div>
-                <div className="text-sm text-neutral-600">Name</div>
-                <div className="font-medium">
+                <div className="text-xs sm:text-sm text-neutral-600">Name</div>
+                <div className="font-medium text-sm sm:text-base truncate">
                   {child.firstName} {child.lastName}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-neutral-600">Username</div>
-                <div className="font-medium">@{child.username}</div>
+                <div className="text-xs sm:text-sm text-neutral-600">Username</div>
+                <div className="font-medium text-sm sm:text-base truncate">@{child.username}</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-600">Date of Birth</div>
-                <div className="font-medium">
+                <div className="text-xs sm:text-sm text-neutral-600">Date of Birth</div>
+                <div className="font-medium text-sm sm:text-base">
                   {child.dateOfBirth ? formatDate(child.dateOfBirth) : 'Not set'}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-neutral-600">Status</div>
-                <Badge variant={child.isActive ? 'default' : 'secondary'}>
+                <div className="text-xs sm:text-sm text-neutral-600">Status</div>
+                <Badge variant={child.isActive ? 'default' : 'secondary'} className="text-xs">
                   {child.isActive ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5" />
+          <Card className="transition-all duration-150 hover:shadow-md">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Eye className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                 Activity Stats
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
               <div>
-                <div className="text-sm text-neutral-600">Total Scans</div>
-                <div className="text-2xl font-bold">{scans.length}</div>
+                <div className="text-xs sm:text-sm text-neutral-600">Total Scans</div>
+                <div className="text-2xl sm:text-3xl font-bold">{scans.length}</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-600">Flagged Content</div>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-xs sm:text-sm text-neutral-600">Flagged Content</div>
+                <div className="text-2xl sm:text-3xl font-bold text-red-600">
                   {scans.filter((s) => s.isAbusive).length}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
+          <Card className="transition-all duration-150 hover:shadow-md sm:col-span-2 lg:col-span-1">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                 Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 p-4 sm:p-6 pt-0">
               <Button
-                className="w-full"
+                className="w-full transition-all duration-150 active:scale-95"
                 variant="outline"
                 onClick={() => router.push(`/dashboard/alerts?childId=${child.id}`)}
               >
                 View Alerts
               </Button>
               <Button
-                className="w-full"
+                className="w-full transition-all duration-150 active:scale-95"
                 variant="outline"
                 onClick={() => router.push('/dashboard/scan')}
               >
@@ -165,54 +169,56 @@ export default function ChildDetailPage() {
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Scan History</CardTitle>
+        <Card className="transition-all duration-150">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Scan History</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6 sm:pt-0">
             {scans.length === 0 ? (
-              <div className="text-center py-12 text-neutral-500">
-                <Eye className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>No scan history available</p>
+              <div className="text-center py-12 px-4 text-neutral-500">
+                <Eye className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm sm:text-base">No scan history available</p>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Source</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Severity</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {scans.map((scan) => (
-                    <TableRow key={scan.id || scan._id}>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{formatDate(scan.createdAt)}</div>
-                          <div className="text-neutral-500">{formatTime(scan.createdAt)}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{scan.contentType || 'Text'}</TableCell>
-                      <TableCell>{scan.source || 'Unknown'}</TableCell>
-                      <TableCell>
-                        <Badge variant={scan.isAbusive ? 'destructive' : 'secondary'}>
-                          {scan.isAbusive ? 'Flagged' : 'Safe'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {scan.severity && (
-                          <span className={`font-medium ${getSeverityColor(scan.severity)}`}>
-                            {scan.severity}
-                          </span>
-                        )}
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs sm:text-sm">Date</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Type</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Source</TableHead>
+                      <TableHead className="text-xs sm:text-sm">Status</TableHead>
+                      <TableHead className="text-xs sm:text-sm hidden md:table-cell">Severity</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {scans.map((scan) => (
+                      <TableRow key={scan.id || scan._id} className="hover:bg-neutral-50">
+                        <TableCell className="py-3">
+                          <div className="text-xs sm:text-sm">
+                            <div className="font-medium">{formatDate(scan.createdAt)}</div>
+                            <div className="text-neutral-500 text-xs">{formatTime(scan.createdAt)}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs sm:text-sm py-3">{scan.contentType || 'Text'}</TableCell>
+                        <TableCell className="text-xs sm:text-sm py-3 hidden sm:table-cell">{scan.source || 'Unknown'}</TableCell>
+                        <TableCell className="py-3">
+                          <Badge variant={scan.isAbusive ? 'destructive' : 'secondary'} className="text-xs">
+                            {scan.isAbusive ? 'Flagged' : 'Safe'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-3 hidden md:table-cell">
+                          {scan.severity && (
+                            <span className={`font-medium text-xs sm:text-sm ${getSeverityColor(scan.severity)}`}>
+                              {scan.severity}
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
