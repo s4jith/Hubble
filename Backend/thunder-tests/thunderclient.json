@@ -1,0 +1,785 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "Hubble API Tests",
+  "collectionId": "hubble-api-tests",
+  "dateExported": "2025-12-13",
+  "version": "1.2",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "health-check",
+      "colId": "hubble-api-tests",
+      "name": "Health Check",
+      "url": "{{baseUrl}}/health",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "custom": "json.success",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "_id": "register-parent",
+      "colId": "hubble-api-tests",
+      "name": "1. Register Parent",
+      "url": "{{baseUrl}}/auth/register",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"parent@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "201"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.accessToken",
+          "value": "accessToken"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.refreshToken",
+          "value": "refreshToken"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.user.id",
+          "value": "parentId"
+        }
+      ]
+    },
+    {
+      "_id": "login-parent",
+      "colId": "hubble-api-tests",
+      "name": "2. Login Parent",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"email\": \"parent@example.com\",\n  \"password\": \"SecurePass123!\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.accessToken",
+          "value": "accessToken"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.refreshToken",
+          "value": "refreshToken"
+        }
+      ]
+    },
+    {
+      "_id": "create-child",
+      "colId": "hubble-api-tests",
+      "name": "3. Create Child Account",
+      "url": "{{baseUrl}}/auth/child",
+      "method": "POST",
+      "sortNum": 40000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"childuser\",\n  \"password\": \"ChildPass123!\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"dateOfBirth\": \"2010-05-15\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "201"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.user.id",
+          "value": "childId"
+        }
+      ]
+    },
+    {
+      "_id": "login-child",
+      "colId": "hubble-api-tests",
+      "name": "4. Login as Child",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 50000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"childuser\",\n  \"password\": \"ChildPass123!\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.accessToken",
+          "value": "childToken"
+        }
+      ]
+    },
+    {
+      "_id": "scan-text-safe",
+      "colId": "hubble-api-tests",
+      "name": "5. Scan Text - Safe Content",
+      "url": "{{baseUrl}}/scan/text",
+      "method": "POST",
+      "sortNum": 60000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"content\": \"Hello! How are you doing today?\",\n  \"source\": \"chat_app\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "custom": "json.data.analysis.isAbusive",
+          "value": "false"
+        }
+      ]
+    },
+    {
+      "_id": "scan-text-abusive",
+      "colId": "hubble-api-tests",
+      "name": "6. Scan Text - Abusive Content",
+      "url": "{{baseUrl}}/scan/text",
+      "method": "POST",
+      "sortNum": 70000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"content\": \"I hate you and want to hurt you badly\",\n  \"source\": \"chat_app\",\n  \"platform\": \"WhatsApp\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "custom": "json.data.analysis.isAbusive",
+          "value": "true"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.id",
+          "value": "scanId"
+        }
+      ]
+    },
+    {
+      "_id": "scan-text-selfharm",
+      "colId": "hubble-api-tests",
+      "name": "7. Scan Text - Self-Harm Detection",
+      "url": "{{baseUrl}}/scan/text",
+      "method": "POST",
+      "sortNum": 80000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"content\": \"I want to kill myself\",\n  \"source\": \"social_media\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "custom": "json.data.analysis.isAbusive",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "_id": "scan-image",
+      "colId": "hubble-api-tests",
+      "name": "8. Scan Image",
+      "url": "{{baseUrl}}/scan/image",
+      "method": "POST",
+      "sortNum": 90000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"imageUrl\": \"https://example.com/image.jpg\",\n  \"source\": \"social_media\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-scan-history",
+      "colId": "hubble-api-tests",
+      "name": "9. Get Scan History",
+      "url": "{{baseUrl}}/scan/history?page=1&limit=20",
+      "method": "GET",
+      "sortNum": 100000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-scan-by-id",
+      "colId": "hubble-api-tests",
+      "name": "10. Get Scan by ID",
+      "url": "{{baseUrl}}/scan/{{scanId}}",
+      "method": "GET",
+      "sortNum": 110000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-alerts",
+      "colId": "hubble-api-tests",
+      "name": "11. Get All Alerts (Parent)",
+      "url": "{{baseUrl}}/alerts?page=1&limit=20",
+      "method": "GET",
+      "sortNum": 120000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "set-env-var",
+          "custom": "json.data.alerts[0].id",
+          "value": "alertId"
+        }
+      ]
+    },
+    {
+      "_id": "get-alert-by-id",
+      "colId": "hubble-api-tests",
+      "name": "12. Get Alert by ID",
+      "url": "{{baseUrl}}/alerts/{{alertId}}",
+      "method": "GET",
+      "sortNum": 130000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "acknowledge-alert",
+      "colId": "hubble-api-tests",
+      "name": "13. Acknowledge Alert",
+      "url": "{{baseUrl}}/alerts/{{alertId}}/acknowledge",
+      "method": "PUT",
+      "sortNum": 140000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "update-alert-status",
+      "colId": "hubble-api-tests",
+      "name": "14. Update Alert Status",
+      "url": "{{baseUrl}}/alerts/{{alertId}}/status",
+      "method": "PUT",
+      "sortNum": 150000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"status\": \"reviewed\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "resolve-alert",
+      "colId": "hubble-api-tests",
+      "name": "15. Resolve Alert",
+      "url": "{{baseUrl}}/alerts/{{alertId}}/resolve",
+      "method": "PUT",
+      "sortNum": 160000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"notes\": \"Discussed with child. Issue handled.\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-alert-stats",
+      "colId": "hubble-api-tests",
+      "name": "16. Get Alert Statistics",
+      "url": "{{baseUrl}}/alerts/stats",
+      "method": "GET",
+      "sortNum": 170000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-children",
+      "colId": "hubble-api-tests",
+      "name": "17. Get Children List",
+      "url": "{{baseUrl}}/parent/children",
+      "method": "GET",
+      "sortNum": 180000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-dashboard",
+      "colId": "hubble-api-tests",
+      "name": "18. Get Dashboard Summary",
+      "url": "{{baseUrl}}/parent/dashboard",
+      "method": "GET",
+      "sortNum": 190000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-incidents",
+      "colId": "hubble-api-tests",
+      "name": "19. Get Incidents",
+      "url": "{{baseUrl}}/parent/incidents?page=1&limit=20",
+      "method": "GET",
+      "sortNum": 200000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-analytics",
+      "colId": "hubble-api-tests",
+      "name": "20. Get Analytics",
+      "url": "{{baseUrl}}/parent/analytics?period=7d",
+      "method": "GET",
+      "sortNum": 210000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-parent-settings",
+      "colId": "hubble-api-tests",
+      "name": "21. Get Parent Settings",
+      "url": "{{baseUrl}}/parent/settings",
+      "method": "GET",
+      "sortNum": 220000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "update-parent-settings",
+      "colId": "hubble-api-tests",
+      "name": "22. Update Parent Settings",
+      "url": "{{baseUrl}}/parent/settings",
+      "method": "PUT",
+      "sortNum": 230000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"notifications\": {\n    \"email\": true,\n    \"push\": true,\n    \"sms\": false\n  },\n  \"monitoring\": {\n    \"scanFrequency\": \"realtime\",\n    \"sensitivityLevel\": \"high\"\n  }\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-child-profile",
+      "colId": "hubble-api-tests",
+      "name": "23. Get Child Profile",
+      "url": "{{baseUrl}}/child/profile",
+      "method": "GET",
+      "sortNum": 240000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "update-child-profile",
+      "colId": "hubble-api-tests",
+      "name": "24. Update Child Profile",
+      "url": "{{baseUrl}}/child/profile",
+      "method": "PUT",
+      "sortNum": 250000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"firstName\": \"Updated Name\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "update-child-blocked",
+      "colId": "hubble-api-tests",
+      "name": "25. Update Child Profile - Blocked (Password)",
+      "url": "{{baseUrl}}/child/profile",
+      "method": "PUT",
+      "sortNum": 260000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"password\": \"NewPassword123!\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "403"
+        }
+      ]
+    },
+    {
+      "_id": "get-resources",
+      "colId": "hubble-api-tests",
+      "name": "26. Get Mental Health Resources",
+      "url": "{{baseUrl}}/child/resources",
+      "method": "GET",
+      "sortNum": 270000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "get-child-scan-history",
+      "colId": "hubble-api-tests",
+      "name": "27. Get Child Scan History",
+      "url": "{{baseUrl}}/child/scan-history?page=1&limit=20",
+      "method": "GET",
+      "sortNum": 280000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{childToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "refresh-token",
+      "colId": "hubble-api-tests",
+      "name": "28. Refresh Token",
+      "url": "{{baseUrl}}/auth/refresh-token",
+      "method": "POST",
+      "sortNum": 290000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "_id": "logout",
+      "colId": "hubble-api-tests",
+      "name": "29. Logout",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 300000,
+      "created": "2025-12-13T10:42:00.000Z",
+      "modified": "2025-12-13T10:42:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{accessToken}}"
+        }
+      ],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "options": {
+      "baseUrl": "http://localhost:3000/api"
+    }
+  }
+}

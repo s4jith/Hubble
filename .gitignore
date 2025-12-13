@@ -19,3 +19,5 @@ Thumbs.db
 
 # Zip files
 *.zip
+
+/bas-frontend 
