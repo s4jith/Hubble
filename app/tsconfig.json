@@ -4,11 +4,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "jsx": "react-native",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "target": "esnext",
-    "module": "esnext",
+    "module": "NodeNext",
     "lib": [
       "esnext"
     ],
