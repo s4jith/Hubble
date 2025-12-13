@@ -1,5 +1,6 @@
 # export.py
-# Export fine-tuned MobileNetV2 NSFW model to ONNX
+# Export Cyberbullying MobileNetV2 to ONNX
+# 3-class: safe, nsfw, violence
 
 import torch
 import torch.nn as nn
@@ -10,20 +11,25 @@ import numpy as np
 
 MODEL_DIR = Path("model")
 FINE_TUNED_DIR = MODEL_DIR / "fine_tuned"
-ONNX_PATH = MODEL_DIR / "nsfw_mobilenet.onnx"
+ONNX_PATH = MODEL_DIR / "cyberbullying.onnx"
+NUM_CLASSES = 3
+CLASS_NAMES = ["safe", "nsfw", "violence"]
 
 
-class NSFWMobileNet(nn.Module):
-    """MobileNetV2 for NSFW detection."""
+class CyberbullyingMobileNet(nn.Module):
+    """MobileNetV2 for 3-class cyberbullying detection."""
     
-    def __init__(self, num_classes=2):
+    def __init__(self, num_classes=3):
         super().__init__()
         self.base = models.mobilenet_v2(weights=None)
         
         in_features = self.base.classifier[1].in_features
         self.base.classifier = nn.Sequential(
             nn.Dropout(p=0.3),
-            nn.Linear(in_features, num_classes)
+            nn.Linear(in_features, 256),
+            nn.ReLU(),
+            nn.Dropout(p=0.2),
+            nn.Linear(256, num_classes)
         )
     
     def forward(self, x):
@@ -31,32 +37,27 @@ class NSFWMobileNet(nn.Module):
 
 
 def export_to_onnx():
-    """Export MobileNetV2 NSFW model to ONNX."""
+    """Export to ONNX (full precision for accuracy)."""
     MODEL_DIR.mkdir(exist_ok=True)
     
-    model = NSFWMobileNet(num_classes=2)
+    model = CyberbullyingMobileNet(num_classes=NUM_CLASSES)
     
-    # Load fine-tuned weights if available
+    # Load fine-tuned weights
     weights_path = FINE_TUNED_DIR / "model.pth"
     if weights_path.exists():
         print(f"Loading fine-tuned weights from: {weights_path}")
         model.load_state_dict(torch.load(weights_path, map_location="cpu"))
         print("✅ Fine-tuned weights loaded!")
     else:
-        print("⚠️ No fine-tuned weights found. Using ImageNet pretrained weights.")
-        model.base = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.IMAGENET1K_V1)
-        in_features = model.base.classifier[1].in_features
-        model.base.classifier = nn.Sequential(
-            nn.Dropout(p=0.3),
-            nn.Linear(in_features, 2)
-        )
+        print("⚠️ No fine-tuned weights found. Run 'python train.py' first.")
+        return
     
     model.eval()
     
-    # Dummy input
+    # Export
     dummy_input = torch.randn(1, 3, 224, 224)
     
-    print("Exporting to ONNX...")
+    print("Exporting to ONNX (full precision, no quantization)...")
     torch.onnx.export(
         model,
         dummy_input,
@@ -81,7 +82,8 @@ def export_to_onnx():
     
     file_size = ONNX_PATH.stat().st_size / (1024 * 1024)
     print(f"\n✅ ONNX Model Saved: {ONNX_PATH.resolve()}")
-    print(f"   Size: {file_size:.1f} MB")
+    print(f"   Size: {file_size:.1f} MB (full precision for max accuracy)")
+    print(f"   Classes: {CLASS_NAMES}")
 
 
 def verify_model():
@@ -97,7 +99,10 @@ def verify_model():
     logits = outputs[0][0]
     probs = np.exp(logits) / np.exp(logits).sum()
     
-    print(f"  Output: Safe={probs[0]:.2%}, NSFW={probs[1]:.2%}")
+    print("  Output probabilities:")
+    for i, name in enumerate(CLASS_NAMES):
+        print(f"    {name}: {probs[i]:.2%}")
+    
     print("\n✅ Model verification passed!")
     print("Run 'python inference.py <image_path>' to test.")
 
