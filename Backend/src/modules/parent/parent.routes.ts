@@ -19,6 +19,7 @@ router.use(requireRole([UserRole.PARENT]));
 // Children management
 router.get('/children', parentController.getChildren);
 router.get('/children/:childId', parentController.getChild);
+router.get('/children/:childId/scan-history', validate(paginationSchema), parentController.getChildScanHistory);
 
 // Incidents
 router.get('/incidents', validate(paginationSchema), parentController.getIncidents);

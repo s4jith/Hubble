@@ -61,6 +61,44 @@ export const getChild = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 
 /**
  * @swagger
+ * /parent/children/{childId}/scan-history:
+ *   get:
+ *     summary: Get scan history for a specific child
+ *     tags: [Parent]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: childId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Scan history for the child
+ *       404:
+ *         description: Child not found
+ */
+export const getChildScanHistory = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const parentId = req.user!.userId;
+  const { childId } = req.params;
+  const { page, limit } = parsePagination(req.query.page as string, req.query.limit as string);
+
+  const result = await parentService.getChildScanHistory(parentId, childId, page, limit);
+
+  sendPaginated(res, result.scans, result.page, result.limit, result.total);
+});
+
+/**
+ * @swagger
  * /parent/incidents:
  *   get:
  *     summary: Get incidents for parent's children
@@ -232,6 +270,7 @@ export const getDashboard = asyncHandler(async (req: AuthenticatedRequest, res: 
 export default {
   getChildren,
   getChild,
+  getChildScanHistory,
   getIncidents,
   getAlerts,
   getAnalytics,

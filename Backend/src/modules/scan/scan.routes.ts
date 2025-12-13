@@ -14,10 +14,10 @@ const router = Router();
 // All routes require authentication
 router.use(authenticate);
 
-// Text scanning (child only)
+// Text scanning (child and parent)
 router.post(
   '/text',
-  requireRole([UserRole.CHILD]),
+  requireRole([UserRole.CHILD, UserRole.PARENT]),
   validate(scanTextSchema),
   scanController.scanText
 );
@@ -37,10 +37,10 @@ router.get(
   scanController.getScanHistory
 );
 
-// Image scanning (child only)
+// Image scanning (child and parent)
 router.post(
   '/image',
-  requireRole([UserRole.CHILD]),
+  requireRole([UserRole.CHILD, UserRole.PARENT]),
   scanController.scanImage
 );
 

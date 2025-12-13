@@ -39,6 +39,36 @@ export class ParentService {
   }
 
   /**
+   * Get scan history for a specific child
+   */
+  async getChildScanHistory(
+    parentId: string,
+    childId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ scans: IScanResult[]; total: number; page: number; limit: number }> {
+    logger.info(`Parent ${parentId} fetching scan history for child ${childId}`);
+
+    // Verify the child belongs to the parent
+    const child = await parentRepository.getChildById(parentId, childId);
+    if (!child) {
+      throw new NotFoundError('Child');
+    }
+
+    // Get scan history for the child
+    const result = await parentRepository.getIncidents(parentId, page, limit, {
+      childId,
+    });
+
+    return { 
+      scans: result.incidents, 
+      total: result.total, 
+      page, 
+      limit 
+    };
+  }
+
+  /**
    * Get incidents for parent's children
    */
   async getIncidents(

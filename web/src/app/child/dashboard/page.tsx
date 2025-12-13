@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Shield, LogOut, User, Eye, Activity, Calendar, AlertTriangle, CheckCircle, Info, Lock } from 'lucide-react';
+import { Shield, LogOut, User, Eye, Activity, Calendar, AlertTriangle, CheckCircle, Info, Lock, Scan } from 'lucide-react';
 import { formatDate, formatTime } from '@/lib/utils';
 
 export default function ChildDashboardPage() {
@@ -94,6 +94,28 @@ export default function ChildDashboardPage() {
             Your safety dashboard - Stay protected online
           </p>
         </div>
+
+        {/* Quick Action - Scan Content */}
+        <Card className="mb-8 bg-gradient-to-r from-neutral-900 to-neutral-700 text-white">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Scan className="w-6 h-6" />
+              Scan Content for Safety
+            </CardTitle>
+            <CardDescription className="text-neutral-200">
+              Check if a message or image is safe before engaging with it
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => router.push('/child/dashboard/scan')}
+              className="bg-white text-neutral-900 hover:bg-neutral-100"
+            >
+              <Scan className="w-4 h-4 mr-2" />
+              Start Scanning
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
