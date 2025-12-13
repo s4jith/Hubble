@@ -99,6 +99,86 @@ export class ScanService {
   }
 
   /**
+   * Scan image content
+   */
+  async scanImage(
+    userId: string,
+    imageUrlOrData: string,
+    sourceApp?: string
+  ): Promise<{
+    scanResult: IScanResult;
+    aiAnalysis: AIAnalysisResult;
+    alertCreated: boolean;
+  }> {
+    const startTime = Date.now();
+    logger.info(`Starting image scan for user ${userId}`);
+
+    // Get user and verify they are a child
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundError('User');
+    }
+
+    if (user.role !== UserRole.CHILD) {
+      throw new AuthorizationError('Only child accounts can submit scans');
+    }
+
+    if (!user.parentId) {
+      throw new ValidationError('Child account not properly linked to parent');
+    }
+
+    // Perform AI analysis on image
+    const aiAnalysis = await aiService.analyzeImage(imageUrlOrData);
+    const processingTime = Date.now() - startTime;
+
+    // Determine severity level
+    const severity = scoreToSeverity(aiAnalysis.severityScore);
+
+    // Create scan result - store image URL/data in content field
+    const scanResult = await scanRepository.createScanResult({
+      userId,
+      parentId: user.parentId.toString(),
+      scanType: ScanType.IMAGE,
+      content: imageUrlOrData,
+      sourceApp,
+      analysis: {
+        isAbusive: aiAnalysis.isAbusive,
+        categories: aiAnalysis.categories,
+        severityScore: aiAnalysis.severityScore,
+        confidence: aiAnalysis.confidence,
+        sentiment: aiAnalysis.sentiment,
+        threatDetected: aiAnalysis.threatDetected,
+        rawResponse: aiAnalysis.rawResponse,
+      },
+      severity,
+      processedAt: new Date(),
+      processingTimeMs: processingTime,
+    });
+
+    // Create alert if abusive content detected
+    let alertCreated = false;
+    if (aiAnalysis.isAbusive) {
+      await alertService.createAlert({
+        childId: userId,
+        parentId: user.parentId.toString(),
+        scanResultId: scanResult._id.toString(),
+        severity,
+        categories: aiAnalysis.categories,
+        severityScore: aiAnalysis.severityScore,
+      });
+      alertCreated = true;
+    }
+
+    logger.info(`Image scan completed for user ${userId}`, {
+      isAbusive: aiAnalysis.isAbusive,
+      severity,
+      processingTime,
+    });
+
+    return { scanResult, aiAnalysis, alertCreated };
+  }
+
+  /**
    * Scan screen metadata
    */
   async scanScreenMetadata(

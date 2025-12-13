@@ -37,6 +37,10 @@ export const env = {
     serviceUrl: process.env.AI_SERVICE_URL || 'http://localhost:5000/api/analyze',
     apiKey: process.env.AI_SERVICE_API_KEY || '',
     mockEnabled: process.env.AI_SERVICE_MOCK === 'true',
+    // Gemini API Keys (multiple keys for rotation)
+    geminiApiKeys: process.env.GEMINI_API_KEYS
+      ? process.env.GEMINI_API_KEYS.split(',').map(k => k.trim())
+      : [],
   },
 
   // Socket.IO

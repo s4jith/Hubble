@@ -17,6 +17,9 @@ export default function ChildScanPage() {
   const [loading, setLoading] = useState(false);
   const [scanType, setScanType] = useState<'text' | 'image'>('text');
   const [result, setResult] = useState<any>(null);
+  const [imageInputType, setImageInputType] = useState<'url' | 'upload'>('url');
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   const [textData, setTextData] = useState({
     content: '',
@@ -46,13 +49,42 @@ export default function ChildScanPage() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleImageScan = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setResult(null);
 
     try {
-      const response = await apiClient.scanImage(imageData);
+      let imageDataToSend = imageData.imageUrl;
+      
+      // If uploading a file, convert to base64
+      if (imageInputType === 'upload' && uploadedImage) {
+        const reader = new FileReader();
+        imageDataToSend = await new Promise<string>((resolve, reject) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(uploadedImage);
+        });
+      }
+
+      const response = await apiClient.scanImage({
+        imageUrl: imageDataToSend,
+        source: imageData.source,
+      });
       setResult(response.data);
     } catch (error: any) {
       console.error('Scan failed', error);
@@ -161,17 +193,60 @@ export default function ChildScanPage() {
                 </form>
               ) : (
                 <form onSubmit={handleImageScan} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="imageUrl">Image URL *</Label>
-                    <Input
-                      id="imageUrl"
-                      type="url"
-                      placeholder="https://example.com/image.jpg"
-                      value={imageData.imageUrl}
-                      onChange={(e) => setImageData({ ...imageData, imageUrl: e.target.value })}
-                      required
-                    />
+                  <div className="flex gap-2 mb-4">
+                    <Button
+                      type="button"
+                      variant={imageInputType === 'url' ? 'default' : 'outline'}
+                      onClick={() => setImageInputType('url')}
+                      className="flex-1"
+                      size="sm"
+                    >
+                      Image URL
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={imageInputType === 'upload' ? 'default' : 'outline'}
+                      onClick={() => setImageInputType('upload')}
+                      className="flex-1"
+                      size="sm"
+                    >
+                      Upload Image
+                    </Button>
                   </div>
+
+                  {imageInputType === 'url' ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="imageUrl">Image URL *</Label>
+                      <Input
+                        id="imageUrl"
+                        type="url"
+                        placeholder="https://example.com/image.jpg"
+                        value={imageData.imageUrl}
+                        onChange={(e) => setImageData({ ...imageData, imageUrl: e.target.value })}
+                        required
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="imageFile">Upload Image *</Label>
+                      <Input
+                        id="imageFile"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        required
+                      />
+                      {imagePreview && (
+                        <div className="mt-2 border border-neutral-200 rounded-md p-2">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="max-h-48 mx-auto rounded"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">

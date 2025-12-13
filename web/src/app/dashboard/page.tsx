@@ -7,7 +7,7 @@ import { apiClient } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Users, Eye, Plus, Scan, History, Activity, FileWarning } from 'lucide-react';
+import { AlertTriangle, Users, Eye, Plus, History, Activity, FileWarning } from 'lucide-react';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -127,15 +127,10 @@ export default function DashboardPage() {
             <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-              <Button className="w-full text-xs sm:text-sm" onClick={() => router.push('/dashboard/scan')}>
-                <Scan className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">Scan Content</span>
-                <span className="xs:hidden">Scan</span>
-              </Button>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
               <Button variant="outline" className="w-full text-xs sm:text-sm" onClick={() => router.push('/dashboard/scan-history')}>
                 <History className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">History</span>
+                <span className="hidden xs:inline">Scan History</span>
                 <span className="xs:hidden">History</span>
               </Button>
               <Button variant="outline" className="w-full text-xs sm:text-sm" onClick={() => router.push('/dashboard/activity')}>

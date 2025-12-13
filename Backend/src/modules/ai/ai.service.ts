@@ -2,6 +2,8 @@ import { env } from '../../config/env';
 import { AbuseCategory } from '../../config/constants';
 import { logger } from '../../utils/logger';
 import { ExternalServiceError } from '../../utils/errors';
+import { keywordClassifier, KeywordClassificationResult } from './keyword-classifier';
+import GeminiClient, { GeminiAnalysisResult } from './gemini-client';
 
 /**
  * AI Analysis Result Interface
@@ -13,13 +15,16 @@ export interface AIAnalysisResult {
   confidence: number;
   sentiment: string;
   threatDetected: boolean;
+  keywordMatch?: KeywordClassificationResult;
+  geminiAnalysis?: GeminiAnalysisResult;
+  analysisMethod: 'keyword-only' | 'keyword-gemini' | 'gemini-only' | 'mock';
   rawResponse?: Record<string, unknown>;
 }
 
 /**
  * AI Service
  * Handles communication with external AI/NLP service for content analysis
- * Supports both real API calls and mock responses for demo/development
+ * Uses multi-stage analysis: Keyword Classification -> Gemini AI -> Mock (fallback)
  * 
  * ARCHITECTURE NOTE:
  * This service is decoupled from the main application logic.
@@ -29,33 +34,113 @@ export class AIService {
   private readonly serviceUrl: string;
   private readonly apiKey: string;
   private readonly mockEnabled: boolean;
+  private geminiClient: GeminiClient | null;
 
   constructor() {
     this.serviceUrl = env.ai.serviceUrl;
     this.apiKey = env.ai.apiKey;
     this.mockEnabled = env.ai.mockEnabled;
+    
+    // Initialize Gemini client if API keys are provided
+    if (env.ai.geminiApiKeys && env.ai.geminiApiKeys.length > 0 && !this.mockEnabled) {
+      this.geminiClient = new GeminiClient(env.ai.geminiApiKeys);
+      logger.info('Gemini AI client initialized');
+    } else {
+      this.geminiClient = null;
+      logger.info('Gemini AI disabled - using keyword classification or mock');
+    }
   }
 
   /**
    * Analyze text content for cyberbullying
+   * Multi-stage process:
+   * 1. Keyword classification (fast pre-screening)
+   * 2. Gemini AI (if needed for context/ambiguity)
+   * 3. Mock analysis (fallback for dev/demo)
    */
   async analyzeText(content: string): Promise<AIAnalysisResult> {
     const startTime = Date.now();
     logger.info('AI analysis started', { contentLength: content.length });
 
     try {
-      let result: AIAnalysisResult;
+      // Stage 1: Keyword Classification (always run - it's fast)
+      const keywordResult = keywordClassifier.classify(content);
+      
+      logger.info('Keyword classification complete', {
+        isAbusive: keywordResult.isAbusive,
+        categories: keywordResult.detectedCategories.length,
+        needsAdvanced: keywordResult.needsAdvancedAnalysis
+      });
 
-      if (this.mockEnabled) {
-        result = await this.getMockAnalysis(content);
-      } else {
-        result = await this.callExternalService(content);
+      // If clear safe content or mock mode, return keyword result
+      if (!keywordResult.isAbusive && !keywordResult.needsAdvancedAnalysis) {
+        const processingTime = Date.now() - startTime;
+        logger.info('Analysis complete (keyword-only)', { processingTime });
+        
+        return {
+          isAbusive: false,
+          categories: [],
+          severityScore: 0,
+          confidence: keywordResult.confidence,
+          sentiment: 'neutral',
+          threatDetected: false,
+          keywordMatch: keywordResult,
+          analysisMethod: 'keyword-only',
+          rawResponse: { keywords: keywordResult }
+        };
       }
 
-      const processingTime = Date.now() - startTime;
-      logger.info('AI analysis completed', { processingTime, isAbusive: result.isAbusive });
+      // Stage 2: Gemini AI Analysis (for ambiguous or harmful content)
+      if (this.geminiClient && !this.mockEnabled) {
+        try {
+          const geminiResult = await this.geminiClient.analyzeText(content);
+          
+          // Combine keyword and Gemini results
+          const combinedResult = this.combineTextResults(keywordResult, geminiResult);
+          
+          const processingTime = Date.now() - startTime;
+          logger.info('Analysis complete (keyword + Gemini)', { 
+            processingTime,
+            isAbusive: combinedResult.isAbusive 
+          });
+          
+          return {
+            ...combinedResult,
+            keywordMatch: keywordResult,
+            geminiAnalysis: geminiResult,
+            analysisMethod: 'keyword-gemini'
+          };
+        } catch (error) {
+          logger.error('Gemini AI failed, falling back to keyword result', error);
+          // Fall through to use keyword result
+        }
+      }
 
-      return result;
+      // Stage 3: Use keyword result or mock
+      if (this.mockEnabled) {
+        const mockResult = await this.getMockAnalysis(content);
+        const processingTime = Date.now() - startTime;
+        logger.info('Analysis complete (mock)', { processingTime });
+        return mockResult;
+      }
+
+      // Return enhanced keyword result
+      const processingTime = Date.now() - startTime;
+      logger.info('Analysis complete (keyword-enhanced)', { processingTime });
+      
+      return {
+        isAbusive: keywordResult.isAbusive,
+        categories: keywordResult.detectedCategories,
+        severityScore: keywordResult.severityScore,
+        confidence: keywordResult.confidence,
+        sentiment: this.detectSentiment(content, keywordResult.isAbusive),
+        threatDetected: keywordResult.detectedCategories.some(c => 
+          c === AbuseCategory.THREAT || c === AbuseCategory.SELF_HARM
+        ),
+        keywordMatch: keywordResult,
+        analysisMethod: 'keyword-only',
+        rawResponse: { keywords: keywordResult }
+      };
     } catch (error) {
       logger.error('AI analysis failed', error);
       throw new ExternalServiceError('AI Analysis');
@@ -63,41 +148,84 @@ export class AIService {
   }
 
   /**
-   * Call external AI service
+   * Analyze image content for harmful content
    */
-  private async callExternalService(content: string): Promise<AIAnalysisResult> {
-    const response = await fetch(this.serviceUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({ text: content }),
-    });
+  async analyzeImage(imageUrlOrData: string): Promise<AIAnalysisResult> {
+    const startTime = Date.now();
+    logger.info('AI image analysis started');
 
-    if (!response.ok) {
-      throw new Error(`AI service returned ${response.status}`);
+    try {
+      // Use Gemini for image analysis
+      if (this.geminiClient && !this.mockEnabled) {
+        const geminiResult = await this.geminiClient.analyzeImage(imageUrlOrData);
+        
+        const processingTime = Date.now() - startTime;
+        logger.info('Image analysis complete (Gemini)', { 
+          processingTime,
+          isAbusive: geminiResult.isAbusive 
+        });
+
+        return {
+          isAbusive: geminiResult.isAbusive,
+          categories: geminiResult.categories,
+          severityScore: geminiResult.severityScore,
+          confidence: geminiResult.confidence,
+          sentiment: geminiResult.sentiment,
+          threatDetected: geminiResult.threatDetected,
+          geminiAnalysis: geminiResult,
+          analysisMethod: 'gemini-only',
+          rawResponse: geminiResult.rawResponse
+        };
+      }
+
+      // Fallback to mock for images
+      const mockResult = await this.getMockImageAnalysis(imageUrlOrData);
+      const processingTime = Date.now() - startTime;
+      logger.info('Image analysis complete (mock)', { processingTime });
+      
+      return mockResult;
+    } catch (error) {
+      logger.error('AI image analysis failed', error);
+      throw new ExternalServiceError('AI Image Analysis');
     }
-
-    const data = await response.json();
-
-    // Map external response to our format
-    return this.mapExternalResponse(data as Record<string, unknown>);
   }
 
   /**
-   * Map external service response to our format
-   * Adjust this based on actual AI service response structure
+   * Combine keyword and Gemini results for better accuracy
    */
-  private mapExternalResponse(data: Record<string, unknown>): AIAnalysisResult {
+  private combineTextResults(
+    keyword: KeywordClassificationResult,
+    gemini: GeminiAnalysisResult
+  ): AIAnalysisResult {
+    // Trust Gemini more for final classification, but use keywords as validation
+    const isAbusive = gemini.isAbusive || keyword.isAbusive;
+    
+    // Combine categories (union of both)
+    const allCategories = [...new Set([
+      ...keyword.detectedCategories,
+      ...gemini.categories
+    ])];
+
+    // Take higher severity
+    const severityScore = Math.max(keyword.severityScore, gemini.severityScore);
+
+    // Average confidence (Gemini is more reliable)
+    const confidence = (gemini.confidence * 0.7) + (keyword.confidence * 0.3);
+
     return {
-      isAbusive: data.isAbusive as boolean ?? false,
-      categories: (data.categories as AbuseCategory[]) ?? [],
-      severityScore: (data.severityScore as number) ?? 0,
-      confidence: (data.confidence as number) ?? 0,
-      sentiment: (data.sentiment as string) ?? 'neutral',
-      threatDetected: (data.threatDetected as boolean) ?? false,
-      rawResponse: data,
+      isAbusive,
+      categories: allCategories,
+      severityScore,
+      confidence,
+      sentiment: gemini.sentiment,
+      threatDetected: gemini.threatDetected || keyword.detectedCategories.some(c =>
+        c === AbuseCategory.THREAT || c === AbuseCategory.SELF_HARM
+      ),
+      analysisMethod: 'keyword-gemini' as const,
+      rawResponse: {
+        keyword: keyword,
+        gemini: gemini.rawResponse
+      }
     };
   }
 
@@ -164,7 +292,52 @@ export class AIService {
       confidence: Math.round(confidence * 100) / 100,
       sentiment,
       threatDetected,
+      analysisMethod: 'mock' as const,
       rawResponse: { mock: true, detections },
+    };
+  }
+
+  /**
+   * Generate mock image analysis for development/demo
+   */
+  private async getMockImageAnalysis(imageUrlOrData: string): Promise<AIAnalysisResult> {
+    // Simulate processing time
+    await new Promise((resolve) => setTimeout(resolve, 200 + Math.random() * 300));
+
+    // For mock purposes, analyze based on image URL/data string if it contains keywords
+    const lowerContent = imageUrlOrData.toLowerCase();
+    
+    // Simulate random detection for demonstration
+    const hasViolence = lowerContent.includes('violence') || lowerContent.includes('fight') || Math.random() > 0.7;
+    const hasInappropriate = lowerContent.includes('inappropriate') || Math.random() > 0.8;
+    
+    const categories: AbuseCategory[] = [];
+    let severityScore = 0;
+    let threatDetected = false;
+
+    if (hasViolence) {
+      categories.push(AbuseCategory.THREAT);
+      severityScore = 60 + Math.random() * 30;
+      threatDetected = true;
+    }
+    
+    if (hasInappropriate) {
+      categories.push(AbuseCategory.HARASSMENT);
+      severityScore = Math.max(severityScore, 40 + Math.random() * 25);
+    }
+
+    const isAbusive = categories.length > 0;
+    const confidence = isAbusive ? 0.70 + Math.random() * 0.2 : 0.80 + Math.random() * 0.15;
+
+    return {
+      isAbusive,
+      categories,
+      severityScore,
+      confidence: Math.round(confidence * 100) / 100,
+      sentiment: isAbusive ? 'negative' : 'neutral',
+      threatDetected,
+      analysisMethod: 'mock' as const,
+      rawResponse: { mock: true, imageAnalysis: true },
     };
   }
 
