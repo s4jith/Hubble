@@ -1,18 +1,26 @@
 export const COLORS = {
-  background: '#0a0a0a', // Deep Black
-  primary: '#FFD700',    // Gold
-  primaryDark: '#B8860B', // Dark Goldenrod
-  surface: '#1A1A1A',    // Dark Grey
-  surfaceLight: '#2A2A2A', // Lighter Grey for gradients/borders
-  text: '#FFFFFF',
-  textSecondary: '#A0A0A0',
-  error: '#FF453A',      // Vibrant Red
-  success: '#32D74B',    // Vibrant Green
-  warning: '#FF9F0A',    // Orange
-
-  // Gradients
-  primaryGradient: ['#FFD700', '#FFA500'], // Gold to Orange
-  surfaceGradient: ['#1A1A1A', '#121212'],
+  background: '#FFFFFF',
+  surface: '#F8F9FA',
+  surfaceLight: '#FFFFFF',
+  primary: '#FFD700',
+  primaryDark: '#FFC700',
+  secondary: '#FF4444',
+  accent: '#000000',
+  text: '#000000',
+  textSecondary: '#666666',
+  textLight: '#999999',
+  error: '#FF4444',
+  success: '#4CAF50',
+  warning: '#FFD700',
+  border: '#E0E0E0',
+  inputBg: '#F5F5F5',
+  white: '#FFFFFF',
+  black: '#000000',
+  yellow: '#FFD700',
+  red: '#FF4444',
+  
+  primaryGradient: ['#FFD700', '#FFC700'],
+  surfaceGradient: ['#F8F9FA', '#FFFFFF'],
 };
 
 export const SPACING = {
@@ -25,7 +33,8 @@ export const SPACING = {
 };
 
 export const FONTS = {
-  // We'll use system fonts for simplicity but define weights here
-  regular: 'System',
-  bold: 'System',
+  regular: 'Poppins-Regular',
+  medium: 'Poppins-Medium',
+  semiBold: 'Poppins-SemiBold',
+  bold: 'Poppins-Bold',
 };
