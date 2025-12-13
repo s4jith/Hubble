@@ -20,11 +20,12 @@ sentil/
 # Jupyter
 .ipynb_checkpoints/
 
-# Model files (large, should be downloaded/trained locally)
-model/fine_tuned/
-model/*.onnx
-*.onnx
-*.safetensors
+# Model files - TRACKED for collaboration
+# (Previously ignored, now tracking for team use)
+# model/fine_tuned/
+# model/*.onnx
+# *.onnx
+# *.safetensors
 
 # Logs
 *.log
