@@ -3,7 +3,6 @@ hack/
 venv/
 env/
 .venv/
-.web/
 
 # Python cache
 __pycache__/
