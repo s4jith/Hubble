@@ -1,0 +1,24 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment
+venv/
+.env
+
+# Model files - too large for git (~855MB), auto-downloaded from HuggingFace
+model/
+*.pt
+*.bin
+*.safetensors
+
+# Test images
+test-images/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
