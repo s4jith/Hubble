@@ -93,7 +93,7 @@ export const analyzeText = async (text: string): Promise<AnalysisResult> => {
     };
 };
 
-const getSeverityMessage = (severity, categories) => {
+const getSeverityMessage = (severity: string, categories: string[]): string => {
     const categoryText = categories.join(', ');
     switch (severity) {
         case 'high':
@@ -105,7 +105,7 @@ const getSeverityMessage = (severity, categories) => {
     }
 };
 
-const getRecommendation = (severity) => {
+const getRecommendation = (severity: string): string => {
     switch (severity) {
         case 'high':
             return 'Consider reporting this content and reaching out to a trusted adult or support resource.';

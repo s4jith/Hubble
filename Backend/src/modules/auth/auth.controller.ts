@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { authService } from './auth.service';
 import { asyncHandler, sendSuccess, sendCreated } from '../../utils';
-import { SUCCESS_MESSAGES, HTTP_STATUS } from '../../config/constants';
+import { SUCCESS_MESSAGES } from '../../config/constants';
 import { AuthenticatedRequest } from '../../middlewares/auth.middleware';
 
 /**

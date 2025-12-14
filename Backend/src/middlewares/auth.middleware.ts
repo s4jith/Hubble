@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken, TokenPayload } from '../modules/auth/token.utils';
-import { UserRole, ERROR_MESSAGES, HTTP_STATUS } from '../config/constants';
+import { UserRole, ERROR_MESSAGES } from '../config/constants';
 import { AuthenticationError, AuthorizationError } from '../utils/errors';
 import { logger } from '../utils/logger';
 

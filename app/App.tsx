@@ -1,15 +1,22 @@
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator, BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { Provider } from 'react-redux';
 import { COLORS } from './src/constants/theme';
-import { Home, Users, FileText, Settings } from 'lucide-react-native';
+import { Home, Users, FileText, Info } from 'lucide-react-native';
 import { store } from './src/store';
 import { useAppSelector, useAppDispatch } from './src/store/hooks';
 import { loginSuccess } from './src/store/slices/authSlice';
 import mockData from './src/data/mockData.json';
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+} from '@expo-google-fonts/poppins';
+import { View, ActivityIndicator } from 'react-native';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -22,9 +29,9 @@ import FeedScreen from './src/screens/FeedScreen';
 import ChatBotScreen from './src/screens/ChatBotScreen';
 import ComplaintUploadScreen from './src/screens/ComplaintUploadScreen';
 import ReportsLogScreen from './src/screens/ReportsLogScreen';
-import SettingsScreen from './src/screens/SettingsScreenNew';
-import CreatePostScreen from './src/screens/CreatePostScreen';
+import AboutScreen from './src/screens/AboutScreen';
 import ReportDetailScreen from './src/screens/ReportDetailScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -37,26 +44,20 @@ export type RootStackParamList = {
   MainApp: undefined;
   ComplaintUpload: undefined;
   ChatBot: undefined;
-  CreatePost: undefined;
   ReportDetail: { reportId: string };
+  Profile: undefined;
 };
 
 export type MainTabParamList = {
   Dashboard: undefined;
   Feed: undefined;
   Reports: undefined;
-  Settings: undefined;
+  About: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
-
-// BACKEND TODO: Implement authentication state management
-// Use Context API or Redux to manage user authentication state
-// Store auth token in secure storage using expo-secure-store
-// Check authentication status on app launch
-// Automatically navigate to MainApp if user is authenticated
 
 function AuthNavigator() {
   return (
@@ -76,23 +77,24 @@ function AuthNavigator() {
 function MainTabNavigator() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={({ route }: { route: { name: keyof MainTabParamList } }) => ({
         headerShown: false,
-        tabBarActiveTintColor: COLORS.yellow,
-        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textMuted,
         tabBarStyle: {
           backgroundColor: COLORS.white,
           borderTopWidth: 1,
-          borderTopColor: COLORS.border,
+          borderTopColor: COLORS.borderLight,
           height: 70,
           paddingBottom: 10,
           paddingTop: 10,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '500',
+          fontWeight: '500' as const,
+          fontFamily: 'Poppins_500Medium',
         },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
           let IconComponent;
 
           switch (route.name) {
@@ -105,8 +107,8 @@ function MainTabNavigator() {
             case 'Reports':
               IconComponent = FileText;
               break;
-            case 'Settings':
-              IconComponent = Settings;
+            case 'About':
+              IconComponent = Info;
               break;
             default:
               IconComponent = Home;
@@ -132,9 +134,9 @@ function MainTabNavigator() {
         options={{ tabBarLabel: 'Reports' }}
       />
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{ tabBarLabel: 'Settings' }}
+        name="About"
+        component={AboutScreen}
+        options={{ tabBarLabel: 'About' }}
       />
     </Tab.Navigator>
   );
@@ -144,10 +146,10 @@ function RootNavigator() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
-  // Load mock data on app start
+  // BACKEND TODO: Remove this mock data initialization
+  // Replace with actual API calls to fetch user data
   useEffect(() => {
-    // BACKEND TODO: Remove this mock data initialization
-    // Replace with actual API calls to fetch user data
+    // Load mock data on app start
   }, []);
 
   return (
@@ -174,15 +176,12 @@ function RootNavigator() {
             component={ChatBotScreen}
           />
           <RootStack.Screen
-            name="CreatePost"
-            component={CreatePostScreen}
-            options={{
-              presentation: 'modal',
-            }}
-          />
-          <RootStack.Screen
             name="ReportDetail"
             component={ReportDetailScreen}
+          />
+          <RootStack.Screen
+            name="Profile"
+            component={ProfileScreen}
           />
         </>
       )}
@@ -202,6 +201,20 @@ function AppContent() {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
+
   return (
     <Provider store={store}>
       <AppContent />

@@ -37,7 +37,7 @@ const router = Router();
  *                   example: 12345.67
  */
 router.get('/', async (_req: Request, res: Response) => {
-  const dbStatus = database.isConnected() ? 'connected' : 'disconnected';
+  const dbStatus = database.getConnectionStatus() ? 'connected' : 'disconnected';
   
   res.status(200).json({
     status: 'ok',

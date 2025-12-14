@@ -1,214 +1,200 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING } from '../constants/theme';
-import {
-  ArrowLeft,
-  FileText,
-  Clock,
+import { 
+  ArrowLeft, 
+  Calendar, 
+  MapPin, 
+  Clock, 
+  AlertTriangle,
   CheckCircle,
-  AlertCircle,
   XCircle,
-  Calendar,
-  Building,
-  MessageSquare,
+  Timer
 } from 'lucide-react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../App';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ReportDetail'>;
-
-interface Report {
-  id: string;
-  type: 'deepfake' | 'cyberbully' | 'threat';
-  status: 'pending' | 'reviewing' | 'resolved' | 'rejected';
-  description: string;
-  date: string;
-  reportedTo: string[];
-  timeline?: {
-    date: string;
-    status: string;
-    message: string;
-  }[];
+interface ReportDetailScreenProps {
+  navigation: any;
+  route: {
+    params: {
+      reportId: string;
+    };
+  };
 }
 
-const ReportDetailScreen: React.FC<Props> = ({ navigation, route }) => {
+const ReportDetailScreen: React.FC<ReportDetailScreenProps> = ({ navigation, route }) => {
   const { reportId } = route.params;
-  const [report, setReport] = useState<Report | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  // BACKEND TODO: Fetch report details from API
-  // GET /api/reports/:reportId
-  useEffect(() => {
-    // Mock data for now
-    const mockReport: Report = {
-      id: reportId,
-      type: 'cyberbully',
-      status: 'reviewing',
-      description: 'Abusive messages received on social media platform. The messages contained threatening language and personal attacks.',
-      date: '2025-12-10',
-      reportedTo: ['School Authority', 'Platform Moderator'],
-      timeline: [
-        {
-          date: '2025-12-10',
-          status: 'pending',
-          message: 'Report submitted successfully',
-        },
-        {
-          date: '2025-12-11',
-          status: 'reviewing',
-          message: 'Your report is being reviewed by the authorities',
-        },
-      ],
-    };
-    setReport(mockReport);
-    setLoading(false);
-  }, [reportId]);
+  // Mock report data - BACKEND TODO: Fetch from API
+  const report = {
+    id: reportId,
+    title: 'Suspicious Activity Detected',
+    description: 'I noticed someone following my child from school today. The person was wearing a dark hoodie and kept a consistent distance of about 20 meters. This happened around 3:30 PM near the main gate of Sunshine Elementary School.',
+    status: reportId === '1' ? 'resolved' : reportId === '2' ? 'pending' : 'investigating',
+    date: '2024-01-15',
+    time: '15:30',
+    location: 'Sunshine Elementary School',
+    priority: reportId === '1' ? 'high' : 'medium',
+    images: [
+      'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800',
+      'https://images.unsplash.com/photo-1557804483-ef3ae78eca57?w=800',
+    ],
+    updates: [
+      {
+        date: '2024-01-16',
+        status: 'investigating',
+        message: 'Report received and assigned to local authorities',
+      },
+      {
+        date: '2024-01-17',
+        status: 'investigating',
+        message: 'Security footage being reviewed',
+      },
+    ],
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending':
-        return <Clock size={20} color={COLORS.yellow} />;
-      case 'reviewing':
-        return <AlertCircle size={20} color={COLORS.yellow} />;
       case 'resolved':
-        return <CheckCircle size={20} color={COLORS.success} />;
-      case 'rejected':
-        return <XCircle size={20} color={COLORS.red} />;
+        return <CheckCircle size={24} color="#4CAF50" />;
+      case 'investigating':
+        return <Timer size={24} color="#FF9800" />;
+      case 'pending':
+        return <Clock size={24} color="#FFC107" />;
       default:
-        return <FileText size={20} color={COLORS.textSecondary} />;
+        return <AlertTriangle size={24} color="#FF4444" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return COLORS.yellow;
-      case 'reviewing':
-        return COLORS.yellow;
       case 'resolved':
-        return COLORS.success;
-      case 'rejected':
-        return COLORS.red;
+        return '#4CAF50';
+      case 'investigating':
+        return '#FF9800';
+      case 'pending':
+        return '#FFC107';
       default:
-        return COLORS.textSecondary;
+        return '#FF4444';
     }
   };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'deepfake':
-        return 'Deepfake';
-      case 'cyberbully':
-        return 'Cyberbullying';
-      case 'threat':
-        return 'Threat';
-      default:
-        return type;
-    }
-  };
-
-  if (loading || !report) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <ArrowLeft size={24} color={COLORS.text} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Report Details</Text>
-        <View style={styles.placeholder} />
-      </View>
+      <BlurView intensity={80} tint="light" style={styles.header}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()} 
+            style={styles.backButton}
+          >
+            <ArrowLeft size={24} color="#333" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Report Details</Text>
+          <View style={{ width: 44 }} />
+        </View>
+      </BlurView>
 
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Status Card */}
-        <View style={styles.statusCard}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Status Badge */}
+        <BlurView intensity={40} tint="light" style={styles.statusCard}>
           <View style={styles.statusHeader}>
-            <View style={styles.reportType}>
-              <FileText size={20} color={COLORS.yellow} />
-              <Text style={styles.reportTypeText}>{getTypeLabel(report.type)}</Text>
-            </View>
-            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(report.status) + '20' }]}>
-              {getStatusIcon(report.status)}
+            {getStatusIcon(report.status)}
+            <View style={styles.statusInfo}>
+              <Text style={styles.statusLabel}>Status</Text>
               <Text style={[styles.statusText, { color: getStatusColor(report.status) }]}>
                 {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
               </Text>
             </View>
           </View>
-        </View>
+        </BlurView>
 
-        {/* Description Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <MessageSquare size={18} color={COLORS.textSecondary} />
-            <Text style={styles.sectionTitle}>Description</Text>
+        {/* Report Details */}
+        <BlurView intensity={40} tint="light" style={styles.detailsCard}>
+          <Text style={styles.reportTitle}>{report.title}</Text>
+          
+          <View style={styles.metaInfo}>
+            <View style={styles.metaItem}>
+              <Calendar size={16} color="#666" />
+              <Text style={styles.metaText}>{report.date}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <Clock size={16} color="#666" />
+              <Text style={styles.metaText}>{report.time}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <MapPin size={16} color="#666" />
+              <Text style={styles.metaText}>{report.location}</Text>
+            </View>
           </View>
-          <Text style={styles.descriptionText}>{report.description}</Text>
-        </View>
 
-        {/* Date Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Calendar size={18} color={COLORS.textSecondary} />
-            <Text style={styles.sectionTitle}>Date Submitted</Text>
-          </View>
-          <Text style={styles.dateText}>{report.date}</Text>
-        </View>
+          <View style={styles.divider} />
 
-        {/* Reported To Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Building size={18} color={COLORS.textSecondary} />
-            <Text style={styles.sectionTitle}>Reported To</Text>
-          </View>
-          <View style={styles.authoritiesContainer}>
-            {report.reportedTo.map((authority, index) => (
-              <View key={index} style={styles.authorityBadge}>
-                <Text style={styles.authorityText}>{authority}</Text>
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.description}>{report.description}</Text>
+
+          {report.images && report.images.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>Evidence</Text>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                style={styles.imagesContainer}
+              >
+                {report.images.map((image, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: image }}
+                    style={styles.evidenceImage}
+                  />
+                ))}
+              </ScrollView>
+            </>
+          )}
+        </BlurView>
+
+        {/* Updates Timeline */}
+        <BlurView intensity={40} tint="light" style={styles.updatesCard}>
+          <Text style={styles.sectionTitle}>Updates Timeline</Text>
+          {report.updates.map((update, index) => (
+            <View key={index} style={styles.updateItem}>
+              <View style={styles.updateDot} />
+              <View style={styles.updateContent}>
+                <Text style={styles.updateDate}>{update.date}</Text>
+                <Text style={styles.updateMessage}>{update.message}</Text>
               </View>
-            ))}
-          </View>
-        </View>
+            </View>
+          ))}
+        </BlurView>
 
-        {/* Timeline Section */}
-        {report.timeline && report.timeline.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Clock size={18} color={COLORS.textSecondary} />
-              <Text style={styles.sectionTitle}>Timeline</Text>
-            </View>
-            <View style={styles.timeline}>
-              {report.timeline.map((item, index) => (
-                <View key={index} style={styles.timelineItem}>
-                  <View style={styles.timelineDot}>
-                    {getStatusIcon(item.status)}
-                  </View>
-                  <View style={styles.timelineContent}>
-                    <Text style={styles.timelineDate}>{item.date}</Text>
-                    <Text style={styles.timelineMessage}>{item.message}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => {/* BACKEND TODO: Add comment functionality */}}
+          >
+            <Text style={styles.actionButtonText}>Add Comment</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.primaryButton]}
+            onPress={() => {/* BACKEND TODO: Contact support */}}
+          >
+            <LinearGradient
+              colors={['#FFD700', '#FFA500']}
+              style={styles.gradientButton}
+            >
+              <Text style={styles.primaryButtonText}>Contact Support</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -217,155 +203,204 @@ const ReportDetailScreen: React.FC<Props> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.background,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.textSecondary,
+    backgroundColor: '#F8F9FA',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingTop: SPACING.xxl + SPACING.m,
-    paddingHorizontal: SPACING.l,
-    paddingBottom: SPACING.l,
-    backgroundColor: COLORS.white,
+    paddingBottom: SPACING.m,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.l,
   },
   backButton: {
-    padding: SPACING.xs,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.text,
-  },
-  placeholder: {
-    width: 32,
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    fontFamily: 'Poppins-Bold',
   },
   content: {
     flex: 1,
     padding: SPACING.l,
   },
   statusCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
+    borderRadius: 20,
     padding: SPACING.l,
-    marginBottom: SPACING.l,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: SPACING.m,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    overflow: 'hidden',
   },
   statusHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  reportType: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.s,
-  },
-  reportTypeText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.m,
-    paddingVertical: SPACING.xs,
-    borderRadius: 20,
-    gap: SPACING.xs,
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  section: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: SPACING.l,
-    marginBottom: SPACING.l,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.s,
-    marginBottom: SPACING.m,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  descriptionText: {
-    fontSize: 15,
-    color: COLORS.text,
-    lineHeight: 22,
-  },
-  dateText: {
-    fontSize: 15,
-    color: COLORS.text,
-  },
-  authoritiesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.s,
-  },
-  authorityBadge: {
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: SPACING.m,
-    paddingVertical: SPACING.xs,
-    borderRadius: 16,
-  },
-  authorityText: {
-    fontSize: 13,
-    color: COLORS.text,
-    fontWeight: '500',
-  },
-  timeline: {
     gap: SPACING.m,
   },
-  timelineItem: {
-    flexDirection: 'row',
-    gap: SPACING.m,
-  },
-  timelineDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: COLORS.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  timelineContent: {
+  statusInfo: {
     flex: 1,
   },
-  timelineDate: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginBottom: 2,
+  statusLabel: {
+    fontSize: 13,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+    marginBottom: 4,
   },
-  timelineMessage: {
+  statusText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    fontFamily: 'Poppins-Bold',
+  },
+  detailsCard: {
+    borderRadius: 20,
+    padding: SPACING.l,
+    marginBottom: SPACING.m,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    overflow: 'hidden',
+  },
+  reportTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    marginBottom: SPACING.m,
+    fontFamily: 'Poppins-Bold',
+  },
+  metaInfo: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.m,
+    marginBottom: SPACING.m,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+  },
+  metaText: {
+    fontSize: 13,
+    color: '#666',
+    fontFamily: 'Poppins-Regular',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    marginVertical: SPACING.l,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: SPACING.m,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  description: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: '#555',
+    marginBottom: SPACING.l,
+    fontFamily: 'Poppins-Regular',
+  },
+  imagesContainer: {
+    marginBottom: SPACING.m,
+  },
+  evidenceImage: {
+    width: 200,
+    height: 150,
+    borderRadius: 16,
+    marginRight: SPACING.m,
+    backgroundColor: '#E0E0E0',
+  },
+  updatesCard: {
+    borderRadius: 20,
+    padding: SPACING.l,
+    marginBottom: SPACING.m,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.05)',
+    overflow: 'hidden',
+  },
+  updateItem: {
+    flexDirection: 'row',
+    marginBottom: SPACING.m,
+  },
+  updateDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FFD700',
+    marginTop: 6,
+    marginRight: SPACING.m,
+  },
+  updateContent: {
+    flex: 1,
+  },
+  updateDate: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 4,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  updateMessage: {
     fontSize: 14,
-    color: COLORS.text,
+    color: '#555',
+    lineHeight: 20,
+    fontFamily: 'Poppins-Regular',
+  },
+  actionButtons: {
+    gap: SPACING.m,
+    marginBottom: SPACING.xl,
+  },
+  actionButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  actionButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    paddingVertical: SPACING.m,
+    fontFamily: 'Poppins-SemiBold',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 16,
+  },
+  primaryButton: {
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  gradientButton: {
+    paddingVertical: SPACING.m,
+    alignItems: 'center',
+    borderRadius: 16,
+  },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+   
+    fontFamily: 'Poppins-Bold',
   },
 });
 

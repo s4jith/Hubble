@@ -33,15 +33,11 @@ const QuickAction = ({ icon: Icon, title, subtitle, onPress, color = COLORS.prim
     </TouchableOpacity>
 );
 
-import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList, TabParamList } from '../../App';
+import { RootStackParamList, MainTabParamList } from '../../App';
 
-type HomeScreenNavigationProp = CompositeNavigationProp<
-    BottomTabNavigationProp<TabParamList, 'Dashboard'>,
-    NativeStackNavigationProp<RootStackParamList>
->;
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const HomeScreen = () => {
     const navigation = useNavigation<HomeScreenNavigationProp>();

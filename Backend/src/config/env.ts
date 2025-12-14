@@ -53,6 +53,11 @@ export const env = {
 
   // Security
   bcryptSaltRounds: parseInt(process.env.BCRYPT_SALT_ROUNDS || '12', 10),
+
+  // Gemini AI Configuration (for chatbot)
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+  },
 } as const;
 
 /**

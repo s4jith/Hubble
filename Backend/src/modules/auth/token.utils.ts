@@ -1,4 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import { env } from '../../config/env';
 import { TokenType, UserRole } from '../../config/constants';
 
@@ -30,7 +31,7 @@ export function generateAccessToken(userId: string, role: UserRole): string {
   };
 
   const options: SignOptions = {
-    expiresIn: env.jwt.accessExpiresIn as string,
+    expiresIn: env.jwt.accessExpiresIn as StringValue,
     algorithm: 'HS256',
   };
 
@@ -48,7 +49,7 @@ export function generateRefreshToken(userId: string, role: UserRole): string {
   };
 
   const options: SignOptions = {
-    expiresIn: env.jwt.refreshExpiresIn as string,
+    expiresIn: env.jwt.refreshExpiresIn as StringValue,
     algorithm: 'HS256',
   };
 

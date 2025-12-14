@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING } from '../constants/theme';
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react-native';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { setStats, setSecurityTips } from '../store/slices/dashboardSlice';
+import { setUserScore } from '../store/slices/chatSlice';
 import mockData from '../data/mockData.json';
 
 const { width } = Dimensions.get('window');
@@ -50,24 +52,41 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const dispatch = useAppDispatch();
   const { stats: dashStats, securityTips: tips } = useAppSelector((state) => state.dashboard);
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     // BACKEND TODO: Replace with actual API call
     // Fetch dashboard stats from GET /api/dashboard/stats
     // Load user-specific statistics and alerts
-    dispatch(setStats(mockData.dashboardStats));
-    dispatch(setSecurityTips(mockData.securityTips));
+    dispatch(setStats({
+      totalReports: 24,
+      activeAlerts: 3,
+      resolved: 18,
+      pending: 6,
+      weeklyChange: 12,
+    }));
+    
+    // Set security tips
+    dispatch(setSecurityTips([
+      { id: 'tip_1', title: 'Protect Your Privacy', content: 'Never share personal information with strangers online', category: 'privacy' as const, isRead: false },
+      { id: 'tip_2', title: 'Strong Passwords', content: 'Use strong and unique passwords for each account', category: 'safety' as const, isRead: false },
+      { id: 'tip_3', title: 'Two-Factor Auth', content: 'Enable two-factor authentication wherever possible', category: 'safety' as const, isRead: true },
+    ]));
+    
+    // Load user's cyberbullying score into chat state
+    // BACKEND TODO: Get from /api/user/score endpoint
+    dispatch(setUserScore(20));
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 800,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
         duration: 600,
-        useNativeDriver: true,
+        useNativeDriver: Platform.OS !== 'web',
       }),
     ]).start();
   }, []);
@@ -106,9 +125,9 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
 
   // Using Redux security tips from mock data
   const securityTips: SecurityTip[] = tips.slice(0, 3).map((tip, index) => ({
-    id: String(index + 1),
-    title: tip,
-    description: tip,
+    id: tip.id || String(index + 1),
+    title: tip.title || tip.content,
+    description: tip.content,
     icon: index === 0 ? Lock : index === 1 ? AlertTriangle : Eye,
   }));
 
@@ -120,10 +139,13 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({ navigation }) => {
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Hello, James</Text>
+            <Text style={styles.greeting}>Hello, {user?.name?.split(' ')[0] || 'James'}</Text>
             <Text style={styles.subtitle}>Stay safe and informed</Text>
           </View>
-          <TouchableOpacity style={styles.profileButton}>
+          <TouchableOpacity 
+            style={styles.profileButton}
+            onPress={() => navigation.navigate('Profile')}
+          >
             <View style={styles.profileAvatar}>
               <Text style={styles.profileText}>J</Text>
             </View>
@@ -342,11 +364,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: SPACING.m,
     margin: SPACING.xs,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+      },
+    }),
   },
   statIcon: {
     width: 48,
@@ -377,11 +408,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: SPACING.m,
     marginBottom: SPACING.s,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+      },
+    }),
   },
   tipIcon: {
     width: 48,
@@ -411,11 +451,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: SPACING.m,
     marginBottom: SPACING.s,
-    shadowColor: COLORS.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+      },
+    }),
   },
   updateHeader: {
     flexDirection: 'row',

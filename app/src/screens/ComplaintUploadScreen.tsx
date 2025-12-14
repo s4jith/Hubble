@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING } from '../constants/theme';
-import { Upload, Camera, FileText, AlertCircle, Send } from 'lucide-react-native';
+import { Upload, Camera, FileText, AlertCircle, Send, Link, ArrowLeft } from 'lucide-react-native';
 
 interface ComplaintUploadScreenProps {
   navigation: any;
@@ -23,6 +23,7 @@ const ComplaintUploadScreen: React.FC<ComplaintUploadScreenProps> = ({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [complaintText, setComplaintText] = useState('');
   const [complaintType, setComplaintType] = useState<'deepfake' | 'cyberbully' | 'threat' | null>(null);
+  const [incidentUrl, setIncidentUrl] = useState('');
 
   const handleImagePick = () => {
     // BACKEND TODO: Implement image picker
@@ -57,11 +58,22 @@ const ComplaintUploadScreen: React.FC<ComplaintUploadScreenProps> = ({
     //   type: complaintType,
     //   description: complaintText,
     //   imageUrl: selectedImage,
+    //   incidentUrl: incidentUrl,
     //   userId: currentUserId
     // }
     // Backend will analyze severity using ML model
     // Send to appropriate authorities based on severity
     // Create complaint report and notify user
+    
+    // Generate report context
+    const reportContext = {
+      type: complaintType,
+      description: complaintText,
+      url: incidentUrl || 'No URL provided',
+      hasEvidence: !!selectedImage,
+      submittedAt: new Date().toISOString(),
+    };
+    console.log('Report submitted:', reportContext);
     
     Alert.alert(
       'Complaint Submitted',
@@ -78,6 +90,12 @@ const ComplaintUploadScreen: React.FC<ComplaintUploadScreenProps> = ({
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <ArrowLeft size={24} color={COLORS.text} />
+        </TouchableOpacity>
         <Text style={styles.title}>File a Complaint</Text>
         <Text style={styles.subtitle}>
           Report incidents of deepfakes, cyberbullying, or online threats. We will take immediate action.
@@ -159,6 +177,20 @@ const ComplaintUploadScreen: React.FC<ComplaintUploadScreenProps> = ({
           )}
         </View>
 
+        <Text style={styles.sectionTitle}>URL / Link (Optional)</Text>
+        <View style={styles.urlInputContainer}>
+          <Link size={20} color={COLORS.textSecondary} />
+          <TextInput
+            style={styles.urlInput}
+            placeholder="Paste the link to the content (e.g., social media post)"
+            placeholderTextColor={COLORS.textLight}
+            value={incidentUrl}
+            onChangeText={setIncidentUrl}
+            autoCapitalize="none"
+            keyboardType="url"
+          />
+        </View>
+
         <Text style={styles.sectionTitle}>Description</Text>
         <TextInput
           style={styles.textArea}
@@ -203,6 +235,15 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.l,
     backgroundColor: COLORS.white,
   },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.m,
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -223,6 +264,24 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     marginBottom: SPACING.m,
     marginTop: SPACING.m,
+  },
+  urlInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    paddingHorizontal: SPACING.m,
+    paddingVertical: SPACING.s,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.m,
+  },
+  urlInput: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.text,
+    marginLeft: SPACING.s,
+    paddingVertical: SPACING.s,
   },
   typeContainer: {
     flexDirection: 'row',

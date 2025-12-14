@@ -7,9 +7,9 @@ import { COLORS, SPACING } from '../constants/theme';
 import { AlertTriangle, MessageSquare, User, Calendar, Send, CheckCircle } from 'lucide-react-native';
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { TabParamList } from '../../App';
+import { MainTabParamList } from '../../App';
 
-type Props = NativeStackScreenProps<TabParamList, 'Report'>;
+type Props = NativeStackScreenProps<MainTabParamList, 'Reports'>;
 
 const ReportScreen = ({ navigation }: Props) => {
     const [incidentType, setIncidentType] = useState('');

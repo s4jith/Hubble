@@ -3,7 +3,7 @@ import { aiService, AIAnalysisResult } from '../ai';
 import { alertService } from '../alerts/alert.service';
 import { userRepository } from '../users/user.repository';
 import { IScanResult } from './scan.model';
-import { ScanType, AlertSeverity, UserRole } from '../../config/constants';
+import { ScanType, UserRole } from '../../config/constants';
 import { NotFoundError, AuthorizationError, ValidationError } from '../../utils/errors';
 import { logger } from '../../utils/logger';
 import { scoreToSeverity } from '../../utils/helpers';

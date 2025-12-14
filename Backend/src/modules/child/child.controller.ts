@@ -139,7 +139,7 @@ export const getResources = asyncHandler(async (req: AuthenticatedRequest, res: 
  *       200:
  *         description: Emergency resources
  */
-export const getEmergencyResources = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+export const getEmergencyResources = asyncHandler(async (_req: AuthenticatedRequest, res: Response) => {
   const resources = await childService.getEmergencyResources();
 
   sendSuccess(res, { resources });

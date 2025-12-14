@@ -2,11 +2,25 @@
   "users": [
     {
       "id": "1",
-      "name": "John Doe",
-      "email": "john@example.com",
+      "name": "James Wilson",
+      "email": "james@example.com",
       "password": "password123",
       "avatar": "https://i.pravatar.cc/150?img=1",
-      "role": "user"
+      "role": "user",
+      "profile": {
+        "phone": "+91 98765 43210",
+        "location": "Mumbai, India",
+        "dateOfBirth": "2010-01-15",
+        "bio": "Student at Delhi Public School"
+      },
+      "stats": {
+        "reportsFiled": 12,
+        "reportsResolved": 8,
+        "daysActive": 45,
+        "safetyScore": 85
+      },
+      "createdAt": "2024-10-01T00:00:00Z",
+      "lastLogin": "2024-12-14T10:30:00Z"
     },
     {
       "id": "2",
@@ -14,15 +28,149 @@
       "email": "jane@example.com",
       "password": "password123",
       "avatar": "https://i.pravatar.cc/150?img=2",
-      "role": "user"
+      "role": "parent"
     }
   ],
+  "userScores": {
+    "default": 50,
+    "victim": 20,
+    "neutral": 50,
+    "bully": 85
+  },
+  "currentUserScore": 20,
   "dashboardStats": {
     "totalReports": 24,
     "activeAlerts": 3,
     "resolved": 18,
-    "pending": 6
+    "pending": 6,
+    "weeklyChange": 12
   },
+  "alerts": [
+    {
+      "id": "alert_1",
+      "type": "warning",
+      "title": "Unusual Activity Detected",
+      "message": "We noticed some concerning messages on your Instagram account.",
+      "timestamp": "2024-12-14T09:00:00Z",
+      "isRead": false,
+      "actionUrl": "Reports"
+    },
+    {
+      "id": "alert_2",
+      "type": "info",
+      "title": "Report Update",
+      "message": "Your report #1234 is now under review by the cyber cell.",
+      "timestamp": "2024-12-13T15:30:00Z",
+      "isRead": true
+    },
+    {
+      "id": "alert_3",
+      "type": "success",
+      "title": "Report Resolved",
+      "message": "Great news! Your report #1230 has been successfully resolved.",
+      "timestamp": "2024-12-12T10:00:00Z",
+      "isRead": true
+    }
+  ],
+  "recentActivity": [
+    {
+      "id": "activity_1",
+      "type": "chat_session",
+      "title": "Chat with Echo",
+      "description": "Completed a support session",
+      "timestamp": "2024-12-14T10:00:00Z"
+    },
+    {
+      "id": "activity_2",
+      "type": "report_filed",
+      "title": "New Report Filed",
+      "description": "Harassment on Instagram",
+      "timestamp": "2024-12-13T14:00:00Z"
+    },
+    {
+      "id": "activity_3",
+      "type": "report_resolved",
+      "title": "Report Resolved",
+      "description": "Deepfake video case closed",
+      "timestamp": "2024-12-12T09:00:00Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_1",
+      "type": "alert",
+      "title": "Safety Alert",
+      "message": "New phishing scam targeting students detected in your area.",
+      "timestamp": "2024-12-14T08:00:00Z",
+      "isRead": false,
+      "priority": "high"
+    },
+    {
+      "id": "notif_2",
+      "type": "report_update",
+      "title": "Report Status Changed",
+      "message": "Your complaint is now being reviewed by authorities.",
+      "timestamp": "2024-12-13T16:00:00Z",
+      "isRead": false,
+      "priority": "normal"
+    },
+    {
+      "id": "notif_3",
+      "type": "safety_tip",
+      "title": "Weekly Safety Tip",
+      "message": "Never share your personal information with strangers online.",
+      "timestamp": "2024-12-12T12:00:00Z",
+      "isRead": true,
+      "priority": "low"
+    }
+  ],
+  "familyMembers": [
+    {
+      "id": "family_1",
+      "name": "Sarah Wilson",
+      "email": "sarah@example.com",
+      "role": "parent",
+      "status": "active",
+      "addedAt": "2024-10-01T00:00:00Z",
+      "permissions": {
+        "canViewReports": true,
+        "canViewActivity": true,
+        "canReceiveAlerts": true
+      }
+    },
+    {
+      "id": "family_2",
+      "name": "Michael Wilson",
+      "email": "michael@example.com",
+      "role": "parent",
+      "status": "active",
+      "addedAt": "2024-10-01T00:00:00Z",
+      "permissions": {
+        "canViewReports": true,
+        "canViewActivity": true,
+        "canReceiveAlerts": true
+      }
+    }
+  ],
+  "connectedAccounts": [
+    {
+      "id": "acc_1",
+      "platform": "instagram",
+      "username": "@james_wilson",
+      "isConnected": true,
+      "connectedAt": "2024-11-01T00:00:00Z",
+      "lastSynced": "2024-12-14T06:00:00Z",
+      "monitoringEnabled": true
+    },
+    {
+      "id": "acc_2",
+      "platform": "twitter",
+      "username": "@jwilson",
+      "isConnected": false,
+      "connectedAt": "",
+      "monitoringEnabled": false
+    }
+  ],
   "feedPosts": [
     {
       "id": "1",
@@ -30,10 +178,14 @@
       "author": "Sarah Johnson",
       "authorAvatar": "https://i.pravatar.cc/150?img=5",
       "timestamp": "2 hours ago",
+      "heading": "Phishing Alert for Students",
       "content": "Just learned about a new phishing scam targeting students. Stay alert and verify sender emails before clicking links.",
       "likes": 45,
       "comments": 12,
-      "image": null
+      "shares": 5,
+      "image": null,
+      "category": "awareness",
+      "tags": ["phishing", "security", "students"]
     },
     {
       "id": "2",
@@ -41,10 +193,14 @@
       "author": "Michael Chen",
       "authorAvatar": "https://i.pravatar.cc/150?img=8",
       "timestamp": "5 hours ago",
+      "heading": "Standing Against Cyberbullying",
       "content": "My daughter experienced cyberbullying last week. We reported it and the school took immediate action. Don't stay silent.",
       "likes": 89,
       "comments": 23,
-      "image": null
+      "shares": 15,
+      "image": null,
+      "category": "story",
+      "tags": ["cyberbullying", "support", "action"]
     },
     {
       "id": "3",
@@ -52,10 +208,14 @@
       "author": "Cyber Safety India",
       "authorAvatar": "https://i.pravatar.cc/150?img=10",
       "timestamp": "1 day ago",
+      "heading": "New Deepfake Detection Tools",
       "content": "New deepfake detection tools released by government. Learn how to identify manipulated content.",
       "likes": 234,
       "comments": 56,
-      "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400"
+      "shares": 89,
+      "image": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400",
+      "category": "news",
+      "tags": ["deepfake", "detection", "government"]
     },
     {
       "id": "4",
@@ -63,10 +223,14 @@
       "author": "Tech News Daily",
       "authorAvatar": "https://i.pravatar.cc/150?img=12",
       "timestamp": "1 day ago",
+      "heading": "Cybercrime Rates Drop 15%",
       "content": "Cybercrime rates decreased by 15% this quarter thanks to increased awareness and reporting.",
       "likes": 567,
       "comments": 89,
-      "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400"
+      "shares": 120,
+      "image": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400",
+      "category": "news",
+      "tags": ["cybercrime", "statistics", "improvement"]
     },
     {
       "id": "5",
@@ -74,10 +238,14 @@
       "author": "Priya Sharma",
       "authorAvatar": "https://i.pravatar.cc/150?img=15",
       "timestamp": "2 days ago",
+      "heading": "Quick Response from Authorities",
       "content": "Thank you to this community for helping me report harassment. The authorities responded within 24 hours.",
       "likes": 156,
       "comments": 34,
-      "image": null
+      "shares": 20,
+      "image": null,
+      "category": "story",
+      "tags": ["success", "authorities", "gratitude"]
     },
     {
       "id": "6",
@@ -85,10 +253,14 @@
       "author": "National Cyber Cell",
       "authorAvatar": "https://i.pravatar.cc/150?img=20",
       "timestamp": "3 days ago",
+      "heading": "Online Safety Guidelines for Parents",
       "content": "New online safety guidelines for parents released. Download the complete guide from our website.",
       "likes": 890,
       "comments": 123,
-      "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400"
+      "shares": 200,
+      "image": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400",
+      "category": "resource",
+      "tags": ["parents", "guidelines", "safety"]
     }
   ],
   "chatMessages": [
@@ -104,23 +276,64 @@
       "id": "1",
       "type": "cyberbullying",
       "title": "Harassment on Social Media",
-      "description": "Receiving threatening messages on Instagram",
+      "description": "Receiving threatening messages on Instagram from multiple accounts",
       "status": "under_review",
       "submittedDate": "2024-12-10",
+      "updatedDate": "2024-12-12",
       "authority": "Cyber Crime Cell",
       "severity": "high",
-      "imageUrl": null
+      "imageUrl": null,
+      "referenceNumber": "CCR-2024-001234",
+      "evidence": [],
+      "timeline": [
+        {
+          "id": "t1",
+          "status": "pending",
+          "message": "Complaint submitted successfully",
+          "timestamp": "2024-12-10T10:00:00Z"
+        },
+        {
+          "id": "t2",
+          "status": "under_review",
+          "message": "Assigned to investigation team",
+          "timestamp": "2024-12-12T09:00:00Z"
+        }
+      ],
+      "platformUrl": "https://instagram.com/profile123"
     },
     {
       "id": "2",
       "type": "deepfake",
       "title": "Fake Video Circulating",
-      "description": "Someone created a deepfake video of me",
+      "description": "Someone created a deepfake video of me and shared it on social media",
       "status": "resolved",
       "submittedDate": "2024-12-05",
+      "updatedDate": "2024-12-10",
       "authority": "National Cyber Cell",
       "severity": "critical",
-      "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400"
+      "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400",
+      "referenceNumber": "NCC-2024-005678",
+      "evidence": [],
+      "timeline": [
+        {
+          "id": "t1",
+          "status": "pending",
+          "message": "Complaint submitted",
+          "timestamp": "2024-12-05T10:00:00Z"
+        },
+        {
+          "id": "t2",
+          "status": "in_progress",
+          "message": "Investigation started",
+          "timestamp": "2024-12-06T09:00:00Z"
+        },
+        {
+          "id": "t3",
+          "status": "resolved",
+          "message": "Content removed and account suspended",
+          "timestamp": "2024-12-10T15:00:00Z"
+        }
+      ]
     },
     {
       "id": "3",
@@ -131,37 +344,109 @@
       "submittedDate": "2024-12-08",
       "authority": "Local Police",
       "severity": "critical",
-      "imageUrl": null
+      "imageUrl": null,
+      "referenceNumber": "LP-2024-009012",
+      "evidence": [],
+      "timeline": [
+        {
+          "id": "t1",
+          "status": "pending",
+          "message": "Complaint registered",
+          "timestamp": "2024-12-08T10:00:00Z"
+        },
+        {
+          "id": "t2",
+          "status": "in_progress",
+          "message": "Police investigation ongoing",
+          "timestamp": "2024-12-09T14:00:00Z"
+        }
+      ]
     },
     {
       "id": "4",
       "type": "cyberbullying",
       "title": "Online Harassment",
-      "description": "Group of people spreading false rumors about me",
+      "description": "Group of people spreading false rumors about me on WhatsApp",
       "status": "pending",
       "submittedDate": "2024-12-12",
       "authority": "School Authority",
       "severity": "medium",
-      "imageUrl": null
+      "imageUrl": null,
+      "evidence": [],
+      "timeline": [
+        {
+          "id": "t1",
+          "status": "pending",
+          "message": "Complaint submitted, awaiting assignment",
+          "timestamp": "2024-12-12T16:00:00Z"
+        }
+      ]
     },
     {
       "id": "5",
       "type": "deepfake",
       "title": "Manipulated Photos",
-      "description": "My photos were edited and shared without consent",
+      "description": "My photos were edited inappropriately and shared without consent",
       "status": "resolved",
       "submittedDate": "2024-11-28",
+      "updatedDate": "2024-12-05",
       "authority": "Cyber Crime Cell",
       "severity": "high",
-      "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400"
+      "imageUrl": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400",
+      "referenceNumber": "CCR-2024-000987",
+      "evidence": [],
+      "timeline": [
+        {
+          "id": "t1",
+          "status": "pending",
+          "message": "Complaint filed",
+          "timestamp": "2024-11-28T10:00:00Z"
+        },
+        {
+          "id": "t2",
+          "status": "resolved",
+          "message": "All manipulated content removed",
+          "timestamp": "2024-12-05T11:00:00Z"
+        }
+      ]
     }
   ],
   "securityTips": [
-    "Never share personal information with strangers online",
-    "Use strong and unique passwords for each account",
-    "Enable two-factor authentication wherever possible",
-    "Verify identity before accepting friend requests",
-    "Report suspicious activity immediately"
+    {
+      "id": "tip_1",
+      "title": "Protect Your Privacy",
+      "content": "Never share personal information with strangers online",
+      "category": "privacy",
+      "isRead": false
+    },
+    {
+      "id": "tip_2",
+      "title": "Strong Passwords",
+      "content": "Use strong and unique passwords for each account",
+      "category": "safety",
+      "isRead": false
+    },
+    {
+      "id": "tip_3",
+      "title": "Two-Factor Authentication",
+      "content": "Enable two-factor authentication wherever possible",
+      "category": "safety",
+      "isRead": true
+    },
+    {
+      "id": "tip_4",
+      "title": "Verify Identities",
+      "content": "Verify identity before accepting friend requests",
+      "category": "awareness",
+      "isRead": false
+    },
+    {
+      "id": "tip_5",
+      "title": "Report Suspicious Activity",
+      "content": "Report suspicious activity immediately to authorities",
+      "category": "prevention",
+      "isRead": true
+    }
   ],
   "botResponses": {
     "greeting": [
@@ -184,5 +469,37 @@
       "Your safety is the priority. Consider reaching out to a trusted adult or authority.",
       "National Cyber Crime Helpline: 1930. They're available to help you right now."
     ]
-  }
+  },
+  "appSettings": {
+    "theme": "system",
+    "language": "en",
+    "fontSize": "medium"
+  },
+  "privacySettings": {
+    "profileVisibility": "family",
+    "showOnlineStatus": true,
+    "allowDirectMessages": true
+  },
+  "activityLog": [
+    {
+      "id": "log_1",
+      "type": "login",
+      "description": "Logged in from iPhone",
+      "timestamp": "2024-12-14T10:30:00Z",
+      "device": "iPhone 15 Pro",
+      "location": "Mumbai, India"
+    },
+    {
+      "id": "log_2",
+      "type": "report_filed",
+      "description": "Filed new complaint",
+      "timestamp": "2024-12-12T16:00:00Z"
+    },
+    {
+      "id": "log_3",
+      "type": "profile_update",
+      "description": "Updated profile picture",
+      "timestamp": "2024-12-10T14:00:00Z"
+    }
+  ]
 }

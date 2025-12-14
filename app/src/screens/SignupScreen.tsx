@@ -49,7 +49,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
       id: String(Date.now()),
       name,
       email,
-      role: 'user',
+      role: 'user' as const,
     };
 
     dispatch(

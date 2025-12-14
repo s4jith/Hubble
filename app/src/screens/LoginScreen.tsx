@@ -45,12 +45,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       const { password: _, ...userWithoutPassword } = user;
       dispatch(
         loginSuccess({
-          user: userWithoutPassword,
+          user: {
+            ...userWithoutPassword,
+            role: userWithoutPassword.role as 'parent' | 'child' | 'admin' | 'user',
+          },
           token: 'mock-jwt-token-' + Date.now(),
         })
       );
     } else {
-      dispatch(loginFailure());
+      dispatch(loginFailure({ code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' }));
       Alert.alert('Login Failed', 'Invalid email or password');
     }
   };
@@ -152,17 +155,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
             <Text style={styles.orText}>Or Continue With Account</Text>
 
-            <View style={styles.socialButtons}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialButtonText}>f</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialButtonText}>G</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialButtonText}>🍎</Text>
-              </TouchableOpacity>
-            </View>
+          
           </View>
         </View>
       </ScrollView>

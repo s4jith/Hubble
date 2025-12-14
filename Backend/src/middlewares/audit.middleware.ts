@@ -67,7 +67,7 @@ export const createAuditMiddleware = (options: AuditOptions) => {
       });
 
       // Call original end
-      return originalEnd.apply(this, args as [unknown?, BufferEncoding?, (() => void)?]);
+      return originalEnd.apply(this, args as unknown as Parameters<typeof originalEnd>);
     };
 
     next();

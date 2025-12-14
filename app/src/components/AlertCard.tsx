@@ -4,7 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SPACING } from '../constants/theme';
 import { AlertTriangle } from 'lucide-react-native';
 
-const AlertCard = ({ message, timestamp, severity = 'medium' }) => {
+interface AlertCardProps {
+  message: string;
+  timestamp: string;
+  severity?: 'high' | 'medium' | 'low';
+}
+
+const AlertCard = ({ message, timestamp, severity = 'medium' }: AlertCardProps) => {
     const getSeverityColor = () => {
         switch (severity) {
             case 'high': return COLORS.error;

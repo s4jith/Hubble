@@ -1,4 +1,4 @@
-import { UserRole } from '../config/constants';
+import { UserRole, TokenType } from '../config/constants';
 
 /**
  * Type Definitions
@@ -11,7 +11,7 @@ declare global {
       user?: {
         userId: string;
         role: UserRole;
-        type: string;
+        type: TokenType;
       };
     }
   }
