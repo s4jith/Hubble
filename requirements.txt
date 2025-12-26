@@ -1,0 +1,27 @@
+# Hubble Models - Requirements
+# Dependencies for text toxicity, image captioning, and deepfake detection models
+
+# Core ML/AI
+torch>=2.0.0
+transformers>=4.35.0
+onnxruntime>=1.16.0
+
+# Image Processing
+Pillow>=10.0.0
+
+# API & Utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+numpy>=1.24.0
+
+# FastAPI Server
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
+
+# Optional: For GPU acceleration with ONNX
+# onnxruntime-gpu>=1.16.0
+
+# Optional: For local BLIP-2 model (16GB+ VRAM required)
+# accelerate>=0.24.0
+# bitsandbytes>=0.41.0
