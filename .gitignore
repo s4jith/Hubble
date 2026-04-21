@@ -21,4 +21,18 @@ Thumbs.db
 # Zip files
 *.zip
 
+# Environment files
+.env
+.env.local
+
+# Model cache (downloaded/exported ML models)
+model_cache/
+Ai/model_cache/
+
+# ONNX model artifacts
+*.onnx
+
+# Node modules
+node_modules/
+
 # /bas-frontend 
