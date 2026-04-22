@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
 
     # ── Startup ──
     logger.info("=" * 60)
-    logger.info("🚀 HUBBLE AI ENGINE — Starting up...")
+    logger.info("[STARTUP] HUBBLE AI ENGINE — Starting up...")
     logger.info("=" * 60)
 
     # 1. LangSmith
@@ -67,7 +67,7 @@ async def lifespan(app: FastAPI):
     get_workflow()
 
     logger.info("=" * 60)
-    logger.info("✅ HUBBLE AI ENGINE — Ready!")
+    logger.info("[READY] HUBBLE AI ENGINE — Ready!")
     logger.info(f"   Environment: {settings.env}")
     logger.info(f"   Port: {settings.port}")
     logger.info(f"   Docs: http://localhost:{settings.port}/docs")
@@ -76,7 +76,7 @@ async def lifespan(app: FastAPI):
     yield  # ── Application runs here ──
 
     # ── Shutdown ──
-    logger.info("🛑 HUBBLE AI ENGINE — Shutting down...")
+    logger.info("[SHUTDOWN] HUBBLE AI ENGINE — Shutting down...")
     await redis_service.disconnect()
     await mongo_service.disconnect()
     logger.info("Shutdown complete")

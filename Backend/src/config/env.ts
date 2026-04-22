@@ -34,7 +34,7 @@ export const env = {
 
   // AI Service Configuration
   ai: {
-    serviceUrl: process.env.AI_SERVICE_URL || 'http://localhost:5000/api/analyze',
+    serviceUrl: process.env.AI_SERVICE_URL || 'http://localhost:8000',
     apiKey: process.env.AI_SERVICE_API_KEY || '',
     mockEnabled: process.env.AI_SERVICE_MOCK === 'true',
     // Gemini API Keys (multiple keys for rotation)

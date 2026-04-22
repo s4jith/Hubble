@@ -44,9 +44,10 @@ class Settings(BaseSettings):
     risk_low_max: int = 30
     risk_medium_max: int = 65
 
-    # --- Video ---
-    video_max_frames: int = 10
-    video_fps_sample: int = 1
+    # --- Content Limits ---
+    max_text_length: int = 10000
+    max_image_size: int = 10 * 1024 * 1024  # 10MB
+    max_video_size: int = 50 * 1024 * 1024  # 50MB
 
     model_config = {
         "env_file": ".env",

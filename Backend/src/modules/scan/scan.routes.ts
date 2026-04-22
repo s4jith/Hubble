@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as scanController from './scan.controller';
 import { authenticate, requireRole } from '../../middlewares/auth.middleware';
+import { scanRateLimiter } from '../../middlewares/rateLimiter.middleware';
 import { validate, scanTextSchema, scanScreenMetadataSchema, idParamSchema } from '../../validations';
 import { UserRole } from '../../config/constants';
 
@@ -17,6 +18,7 @@ router.use(authenticate);
 // Text scanning (child and parent)
 router.post(
   '/text',
+  scanRateLimiter,
   requireRole([UserRole.CHILD, UserRole.PARENT]),
   validate(scanTextSchema),
   scanController.scanText
@@ -25,6 +27,7 @@ router.post(
 // Screen metadata scanning (child only)
 router.post(
   '/screen-metadata',
+  scanRateLimiter,
   requireRole([UserRole.CHILD]),
   validate(scanScreenMetadataSchema),
   scanController.scanScreenMetadata
@@ -40,6 +43,7 @@ router.get(
 // Image scanning (child and parent)
 router.post(
   '/image',
+  scanRateLimiter,
   requireRole([UserRole.CHILD, UserRole.PARENT]),
   scanController.scanImage
 );

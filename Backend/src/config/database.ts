@@ -48,8 +48,8 @@ class Database {
       });
 
     } catch (error) {
-      logger.error('Failed to connect to MongoDB:', error);
-      throw error;
+      logger.warn('Failed to connect to MongoDB. Continuing in degraded mode:', error);
+      this.isConnected = false;
     }
   }
 

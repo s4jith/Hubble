@@ -15,12 +15,12 @@ from app.api.schemas.responses import (
     DeepAnalysisDetail,
     ErrorResponse,
 )
-from app.pipeline.workflow import get_workflow, PipelineState
-from app.services.redis_service import redis_service
 from app.services.mongo_service import mongo_service
 from app.observability.logging import get_logger
+from app.config import get_settings
 
 logger = get_logger(__name__)
+settings = get_settings()
 
 router = APIRouter(tags=["Analysis"])
 
@@ -120,6 +120,10 @@ async def analyze_text(request: TextAnalysisRequest):
 
     logger.info("analyze_text_started", request_id=request_id, text_length=len(request.text))
 
+    # Validate text length
+    if len(request.text) > settings.max_text_length:
+        raise HTTPException(status_code=400, detail=f"Text too long (max {settings.max_text_length} chars)")
+
     # Check cache
     cached_result = await redis_service.get_cached_result(request.text, "text")
     if cached_result:
@@ -192,6 +196,10 @@ async def analyze_image(
 
     logger.info("analyze_image_started", request_id=request_id, filename=file.filename)
 
+    # Validate file size
+    if file.size and file.size > settings.max_image_size:
+        raise HTTPException(status_code=400, detail=f"Image too large (max {settings.max_image_size / 1024 / 1024}MB)")
+
     try:
         image_bytes = await file.read()
 
@@ -249,6 +257,10 @@ async def analyze_video(
         raise HTTPException(status_code=400, detail="File must be a video (MP4, AVI, etc.)")
 
     logger.info("analyze_video_started", request_id=request_id, filename=file.filename)
+
+    # Validate file size
+    if file.size and file.size > settings.max_video_size:
+        raise HTTPException(status_code=400, detail=f"Video too large (max {settings.max_video_size / 1024 / 1024}MB)")
 
     try:
         video_bytes = await file.read()
