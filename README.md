@@ -1,10 +1,6 @@
-# Hubble — Intelligent Child Safety & Cyberbullying Detection Platform
+# Hubble — Cyber Bullying Detection and Prevention System
 
-An end-to-end multi-layered content moderation system designed to protect minors in digital environments. The system connects a lightweight Fast-Filter local AI engine, a heavy Multimodal Deep-Reasoning cloud engine, a structured Node.js backend, and a real-time Next.js monitoring dashboard.
-
-> **Hackathon:** National Hackathon — SentinelAI Project  
-> **Focus:** AI for Child Safety, Real-time Moderation, Multimodal Threat Detection
-
+An end-to-end multi-layered content moderation system designed to protect minors in digital environments. The system connects a lightweight Fast-Filter local AI engine, a heavy Multimodal Deep-Reasoning cloud engine, a structured Node.js backend, and a real-time Next.js monitoring dashboard
 ---
 
 ## Problem Statement
@@ -172,16 +168,6 @@ cp .env.example .env.local
 npm run dev:all
 ```
 The dashboard will be available at `http://localhost:3000`.
-
----
-
-## Robustness Analysis
-
-**Handling Slang & Misspellings:** The RoBERTa tokenizer handles sub-word embeddings, making it highly resilient to slight misspellings or common leetspeak substitutions used to bypass simple string-matching filters.
-
-**Image Obfuscation:** EfficientNet relies on deeper feature maps rather than exact pixel matching, making it robust against minor image cropping, filtering, or noise injection often used to bypass hashing-based moderation.
-
-**Contextual Sarcasm:** The integration of Gemini Flash mitigates the high false-positive rate of local models. For example, a phrase like "I'm going to kill you 😂" triggers the local filter but is correctly overridden as a joke by the Deep Reasoning layer.
 
 ---
 
