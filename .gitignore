@@ -37,8 +37,4 @@ node_modules/
 
 # /bas-frontend 
 
-# IntentDrive Project Specific
-extracted_training_data.json
-log/
-models/*.pth
 
