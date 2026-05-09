@@ -158,6 +158,8 @@ export function handleError(err: unknown): NextResponse<ApiResponse> {
         return forbidden();
       case 'NOT_FOUND':
         return notFound();
+      case 'MISSING_MONGODB_URI':
+        return error('Server configuration error: MONGODB_URI is not set', 500);
       default:
         // In production, don't expose error details
         if (process.env.NODE_ENV === 'production') {
