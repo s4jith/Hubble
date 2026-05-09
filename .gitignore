@@ -1,40 +1,46 @@
-# Virtual environments
-hack/
+# ── HF Spaces deployment (own git repo, managed separately) ──
+SentinelAI/
+
+# ── Virtual environments ──
 venv/
 env/
 .venv/
-.web/
+hack/
 
-# Python cache
+# ── Python ──
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyo
 
-# IDE
+# ── Environment / secrets ──
+.env
+.env.local
+Backend/.env
+
+# ── Model cache & ONNX artifacts ──
+model_cache/
+Backend/model_cache/
+*.onnx
+*.onnx.data
+
+# ── Root-level dev/test scripts ──
+test_*.py
+verify_models.py
+package-lock.json
+
+# ── Node / Next.js ──
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/.env.local
+*.tsbuildinfo
+
+# ── IDE & OS ──
 .vscode/
 .idea/
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Zip files
+# ── Misc ──
 *.zip
-
-# Environment files
-.env
-.env.local
-
-# Model cache (downloaded/exported ML models)
-model_cache/
-Ai/model_cache/
-
-# ONNX model artifacts
-*.onnx
-
-# Node modules
-node_modules/
-
-# /bas-frontend 
-
-
