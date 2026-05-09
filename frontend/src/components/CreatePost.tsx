@@ -7,12 +7,13 @@
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Image as ImageIcon, Video, X, Globe, Users, Lock as LockIcon, AlertCircle } from 'lucide-react';
+import { Image as ImageIcon, Video, X, Globe, Users, Lock as LockIcon, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Avatar, Button, Card, Textarea } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store';
 import { usePosts } from '@/hooks';
 import { PostType, PostVisibility } from '@/types';
+import { moderateWithSentinel, type SentinelModerationResult } from '@/lib/sentinel-moderation';
 
 interface CreatePostProps {
   onSuccess?: () => void;
@@ -34,6 +35,11 @@ export function CreatePost({ onSuccess }: CreatePostProps) {
   const [mediaTypes, setMediaTypes] = useState<('image' | 'video')[]>([]);
   const [showVisibilityMenu, setShowVisibilityMenu] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // SentinelAI moderation state
+  const [isModerating, setIsModerating] = useState(false);
+  const [showMediumWarning, setShowMediumWarning] = useState(false);
+  const [pendingModerationResult, setPendingModerationResult] = useState<SentinelModerationResult | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,11 +50,8 @@ export function CreatePost({ onSuccess }: CreatePostProps) {
     return 'image';
   };
 
-  const handleSubmit = async () => {
-    if (!content.trim()) return;
-
-    setError(null); // Clear any previous errors
-
+  /** Submits the post — called after moderation is cleared */
+  const submitPost = async () => {
     try {
       const result = await createPost({
         content,
@@ -62,6 +65,8 @@ export function CreatePost({ onSuccess }: CreatePostProps) {
         setMediaUrls([]);
         setMediaTypes([]);
         setError(null);
+        setShowMediumWarning(false);
+        setPendingModerationResult(null);
         onSuccess?.();
       } else {
         // Handle error
@@ -82,6 +87,43 @@ export function CreatePost({ onSuccess }: CreatePostProps) {
       console.error('Error creating post:', error);
       setError('Failed to create post. Please try again.');
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!content.trim()) return;
+
+    setError(null);
+    setShowMediumWarning(false);
+    setPendingModerationResult(null);
+
+    // ── SentinelAI pre-moderation ──────────────────────────────────────────────
+    setIsModerating(true);
+    const moderation = await moderateWithSentinel(
+      content,
+      (user as any)?.id ?? (user as any)?._id ?? 'anonymous'
+    );
+    setIsModerating(false);
+
+    if (moderation.error) {
+      // API unreachable — warn but allow posting (server-side will still check)
+      console.warn('[SentinelAI] Proceeding without client-side moderation:', moderation.error);
+    } else if (moderation.blocked) {
+      // HIGH risk — block the post
+      const categories = moderation.result?.categories?.join(', ') || 'harmful content';
+      setError(
+        `Post blocked: content flagged as ${categories}. Risk score: ${moderation.result?.risk_score?.toFixed(1)}.`
+      );
+      return;
+    } else if (moderation.needsConfirmation) {
+      // MEDIUM risk — ask for confirmation before posting
+      setPendingModerationResult(moderation.result);
+      setShowMediumWarning(true);
+      return;
+    }
+    // LOW risk (or API failed) — proceed normally
+    // ──────────────────────────────────────────────────────────────────────────
+
+    await submitPost();
   };
 
   const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -207,6 +249,47 @@ export function CreatePost({ onSuccess }: CreatePostProps) {
         )}
       </AnimatePresence>
 
+      {/* SentinelAI: Medium-risk confirmation warning */}
+      <AnimatePresence>
+        {showMediumWarning && pendingModerationResult && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-start gap-3 p-4 rounded-xl border-2 bg-amber-50 border-amber-300 text-amber-900"
+          >
+            <ShieldAlert className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Content advisory</p>
+              <p className="text-xs mt-0.5">
+                Your post may contain {pendingModerationResult.categories.join(', ') || 'concerning'} content
+                {' '}(risk score: {pendingModerationResult.risk_score.toFixed(1)}).
+                Do you still want to post?
+              </p>
+              <div className="flex gap-2 mt-3">
+                <Button
+                  size="sm"
+                  onClick={submitPost}
+                  isLoading={isLoading}
+                  disabled={isLoading}
+                >
+                  Post anyway
+                </Button>
+                <button
+                  onClick={() => {
+                    setShowMediumWarning(false);
+                    setPendingModerationResult(null);
+                  }}
+                  className="text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Content Input */}
       <Textarea
         placeholder="What's on your mind?"
@@ -279,11 +362,11 @@ export function CreatePost({ onSuccess }: CreatePostProps) {
         
         <Button
           onClick={handleSubmit}
-          disabled={!content.trim() || isLoading}
-          isLoading={isLoading}
+          disabled={!content.trim() || isLoading || isModerating}
+          isLoading={isLoading || isModerating}
           size="md"
         >
-          Post
+          {isModerating ? 'Analyzing content...' : 'Post'}
         </Button>
       </div>
     </Card>
