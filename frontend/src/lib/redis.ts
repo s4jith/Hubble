@@ -11,7 +11,7 @@ declare global {
   var redisClient: Redis | null;
 }
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_URL = process.env.REDIS_URL || 'redis://default:dongH74t41QfBN0TO0e5ylWAVThXZoLR@redis-13470.crce281.ap-south-1-3.ec2.cloud.redislabs.com:13470';
 
 /**
  * Get or create Redis client singleton
@@ -49,7 +49,9 @@ export const redis = getRedisClient();
 // PRESENCE MANAGEMENT
 // ===========================================
 
-const PRESENCE_KEY_PREFIX = 'presence:';
+// Hubble namespace prefix — isolates all keys from other projects on the same Redis instance
+const NS = 'hubble:';
+const PRESENCE_KEY_PREFIX = `${NS}presence:`;
 const PRESENCE_TTL = 300; // 5 minutes
 
 /**
@@ -110,7 +112,7 @@ export async function refreshPresence(userId: string): Promise<void> {
 // TYPING INDICATORS
 // ===========================================
 
-const TYPING_KEY_PREFIX = 'typing:';
+const TYPING_KEY_PREFIX = `${NS}typing:`;
 const TYPING_TTL = 5; // 5 seconds
 
 /**
@@ -143,7 +145,7 @@ export async function getTypingUsers(conversationId: string): Promise<string[]> 
 // CACHING UTILITIES
 // ===========================================
 
-const CACHE_PREFIX = 'cache:';
+const CACHE_PREFIX = `${NS}cache:`;
 
 /**
  * Cache data with TTL

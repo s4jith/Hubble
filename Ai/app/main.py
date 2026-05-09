@@ -15,6 +15,7 @@ from app.services.mongo_service import mongo_service
 from app.services.gemini_service import gemini_service
 from app.pipeline.workflow import get_workflow
 from app.api.router import api_router
+from app.db.connection import connect_db, close_db
 
 
 @asynccontextmanager
@@ -45,9 +46,10 @@ async def lifespan(app: FastAPI):
     langsmith_ok = setup_langsmith()
     logger.info("langsmith", enabled=langsmith_ok)
 
-    # 2. MongoDB
+    # 2. MongoDB (legacy motor service + Beanie ODM)
     logger.info("connecting_mongodb")
     await mongo_service.connect()
+    await connect_db()   # initializes Beanie document models
 
     # 3. Redis
     logger.info("connecting_redis")
@@ -76,9 +78,10 @@ async def lifespan(app: FastAPI):
     yield  # ── Application runs here ──
 
     # ── Shutdown ──
-    logger.info("[SHUTDOWN] HUBBLE AI ENGINE — Shutting down...")
+    logger.info("[SHUTDOWN] HUBBLE — Shutting down...")
     await redis_service.disconnect()
     await mongo_service.disconnect()
+    await close_db()
     logger.info("Shutdown complete")
 
 
@@ -101,13 +104,10 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS
+    # CORS — use origins from config
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if not settings.is_production else [
-            "https://hubble.app",
-            "https://www.hubble.app",
-        ],
+        allow_origins=settings.cors_origins_list if settings.is_production else ["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -116,19 +116,22 @@ def create_app() -> FastAPI:
     # Mount routes
     app.include_router(api_router)
 
-    # Root redirect
     @app.get("/", include_in_schema=False)
     async def root():
         return JSONResponse({
-            "name": "Hubble AI Engine",
-            "version": "4.0.0",
+            "name": "Hubble Unified API",
+            "version": "5.0.0",
             "docs": "/docs",
             "health": "/health",
             "endpoints": {
-                "text": "POST /api/v1/analyze/text",
-                "image": "POST /api/v1/analyze/image",
-                "video": "POST /api/v1/analyze/video",
-                "history": "GET /api/v1/history/{user_id}",
+                "auth": "POST /api/v1/auth/{register|login|refresh|logout}",
+                "users": "GET /api/v1/users/me",
+                "scan_text": "POST /api/v1/scan/text",
+                "scan_image": "POST /api/v1/scan/image",
+                "scan_history": "GET /api/v1/scan/history",
+                "alerts": "GET /api/v1/alerts",
+                "analyze_text": "POST /api/v1/analyze/text  (raw, no auth)",
+                "analyze_image": "POST /api/v1/analyze/image (raw, no auth)",
             },
         })
 

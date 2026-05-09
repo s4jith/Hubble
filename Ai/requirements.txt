@@ -1,5 +1,5 @@
 # ============================================
-# Hubble AI Engine - Python Dependencies
+# Hubble Unified API — Python Dependencies
 # ============================================
 
 # --- Core Framework ---
@@ -8,6 +8,11 @@ uvicorn[standard]>=0.27.0
 python-multipart>=0.0.9
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
+
+# --- Auth ---
+argon2-cffi>=23.1.0
+python-jose[cryptography]>=3.3.0
+email-validator>=2.1.0
 
 # --- Machine Learning ---
 torch>=2.1.0
@@ -27,8 +32,9 @@ langgraph>=0.0.30
 langsmith>=0.1.0
 structlog>=24.1.0
 
-# --- Storage ---
+# --- Storage (async) ---
 motor>=3.3.0
+beanie>=1.25.0
 redis>=5.0.0
 
 # --- Media Processing ---

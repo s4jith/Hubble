@@ -80,4 +80,3 @@ Hubble/
 - **Behavioral Analytics**: Moving beyond content to identify patterns of grooming or cyberbullying over long durations.
 
 ---
-*Created for the National Hackathon - SentinelAI Project*

@@ -16,17 +16,27 @@ class Settings(BaseSettings):
     env: str = "development"
     log_level: str = "INFO"
 
+    # --- JWT ---
+    jwt_access_secret: str = "hubble-access-secret-change-in-production-32chars"
+    jwt_refresh_secret: str = "hubble-refresh-secret-change-in-production-32chars"
+    jwt_access_expires_minutes: int = 15
+    jwt_refresh_expires_days: int = 7
+
+    # --- Security ---
+    bcrypt_rounds: int = 12
+    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+
     # --- MongoDB ---
-    mongodb_uri: str = "mongodb://localhost:27017/hubble"
+    mongodb_uri: str = "mongodb+srv://sajithjaganathan7_db_user:Winter_bear_07@cluster0.jxdvukx.mongodb.net/hubble?appName=Cluster0"
     mongodb_db_name: str = "hubble"
 
     # --- Redis ---
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str = "redis://default:dongH74t41QfBN0TO0e5ylWAVThXZoLR@redis-13470.crce281.ap-south-1-3.ec2.cloud.redislabs.com:13470"
     redis_cache_ttl: int = 300  # seconds
 
     # --- Gemini ---
     gemini_api_keys: str = ""  # comma-separated
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-2.5-flash"
 
     # --- LangSmith ---
     langsmith_api_key: str = ""
@@ -35,7 +45,7 @@ class Settings(BaseSettings):
 
     # --- Models ---
     model_cache_dir: str = "./model_cache"
-    onnx_enabled: bool = True
+    onnx_enabled: bool = False
     text_model_name: str = "unitary/toxic-bert"
     image_model_name: str = "google/efficientnet-b0"
     clip_model_name: str = "openai/clip-vit-base-patch32"
@@ -46,8 +56,12 @@ class Settings(BaseSettings):
 
     # --- Content Limits ---
     max_text_length: int = 10000
-    max_image_size: int = 10 * 1024 * 1024  # 10MB
-    max_video_size: int = 50 * 1024 * 1024  # 50MB
+    max_image_size: int = 10 * 1024 * 1024   # 10MB
+    max_video_size: int = 50 * 1024 * 1024   # 50MB
+
+    # --- Video Processing ---
+    video_max_frames: int = 10
+    video_fps_sample: int = 1
 
     model_config = {
         "env_file": ".env",
@@ -61,6 +75,11 @@ class Settings(BaseSettings):
         if not self.gemini_api_keys:
             return []
         return [k.strip() for k in self.gemini_api_keys.split(",") if k.strip()]
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Parse comma-separated CORS origins."""
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 
     @property
     def model_cache_path(self) -> Path:
