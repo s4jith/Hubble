@@ -1,3 +1,13 @@
+---
+title: Hubble AI Engine
+emoji: 🔍
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Hubble AI Engine — Cyberbullying Detection Pipeline
 
 A production-grade, layered AI content moderation system for detecting cyberbullying across **text**, **image**, and **video** inputs. Designed as a universal safety tool for social media platforms.

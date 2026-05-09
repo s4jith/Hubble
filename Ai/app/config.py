@@ -12,26 +12,26 @@ class Settings(BaseSettings):
 
     # --- Server ---
     host: str = "0.0.0.0"
-    port: int = 8000
-    env: str = "development"
+    port: int = 7860
+    env: str = "production"
     log_level: str = "INFO"
 
     # --- JWT ---
-    jwt_access_secret: str = "hubble-access-secret-change-in-production-32chars"
-    jwt_refresh_secret: str = "hubble-refresh-secret-change-in-production-32chars"
+    jwt_access_secret: str = Field(default="change-me-in-production-at-least-32-chars!!")
+    jwt_refresh_secret: str = Field(default="change-me-in-production-at-least-32-chars!!")
     jwt_access_expires_minutes: int = 15
     jwt_refresh_expires_days: int = 7
 
     # --- Security ---
     bcrypt_rounds: int = 12
-    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+    cors_origins: str = "*"
 
     # --- MongoDB ---
-    mongodb_uri: str = "mongodb+srv://sajithjaganathan7_db_user:Winter_bear_07@cluster0.jxdvukx.mongodb.net/hubble?appName=Cluster0"
+    mongodb_uri: str = Field(default="")
     mongodb_db_name: str = "hubble"
 
     # --- Redis ---
-    redis_url: str = "redis://default:dongH74t41QfBN0TO0e5ylWAVThXZoLR@redis-13470.crce281.ap-south-1-3.ec2.cloud.redislabs.com:13470"
+    redis_url: str = Field(default="")
     redis_cache_ttl: int = 300  # seconds
 
     # --- Gemini ---
@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     langsmith_tracing_v2: bool = True
 
     # --- Models ---
-    model_cache_dir: str = "./model_cache"
+    model_cache_dir: str = "/tmp/model_cache"
     onnx_enabled: bool = False
     text_model_name: str = "unitary/toxic-bert"
     image_model_name: str = "google/efficientnet-b0"
